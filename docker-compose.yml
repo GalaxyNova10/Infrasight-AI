@@ -1,0 +1,79 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      # Use component variables which are read by your database.py
+      - DB_HOST=db
+      - DB_USER=infrasight
+      - DB_PASSWORD=mysecretpassword
+      - DB_NAME=infrasight_db
+    depends_on:
+      db:
+        condition: service_healthy # Waits for the db healthcheck to pass
+    networks:
+      - appnet
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # This prevents the local node_modules from overwriting the container's
+    environment:
+      # This helps Vite's hot-reloading work correctly inside Docker
+      - WATCHPACK_POLLING=true
+    stdin_open: true
+    tty: true
+    networks:
+      - appnet
+
+  cv_processor:
+    build:
+      context: ./cv_processor
+      dockerfile: Dockerfile
+    container_name: cv_processor
+    # This command keeps the container running so you can exec into it
+    command: tail -f /dev/null
+    depends_on:
+      - backend
+    networks:
+      - appnet
+
+  db:
+    image: postgis/postgis:13-3.1
+    restart: always
+    container_name: db
+    environment:
+      - POSTGRES_USER=infrasight
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=infrasight_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - appnet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infrasight -d infrasight_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  appnet:
+    driver: bridge

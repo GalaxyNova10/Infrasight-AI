@@ -1,0 +1,109 @@
+/* 1. Font Imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* 2. CSS Variables for Light & Dark Themes */
+:root {
+  --color-background: #f7fafc;
+  --color-foreground: #1a237e;
+  --color-primary: #1a237e;
+  --color-primary-foreground: #e3f6fd;
+  --color-secondary: #00e5ff;
+  --color-secondary-foreground: #ffffff;
+  --color-accent: #00e5ff;
+  --color-accent-foreground: #1a237e;
+  --color-border: #e0e7ef;
+  --color-input: #ffffff;
+  --color-ring: #00e5ff;
+  --color-card: #ffffffcc;
+  --color-card-foreground: #1a237e;
+  --color-popover: #ffffffcc;
+  --color-popover-foreground: #1a237e;
+  --color-muted: #e3f6fd;
+  --color-muted-foreground: #5ee2ff;
+  --color-success: #2dd4bf;
+  --color-success-foreground: #ffffff;
+  --color-warning: #fbbf24;
+  --color-warning-foreground: #1a237e;
+  --color-error: #ef4444;
+  --color-error-foreground: #ffffff;
+  --color-surface: #f7fafc;
+  --color-text-primary: #1a237e;
+  --color-text-secondary: #5ee2ff;
+  --radius: 1.25rem;
+}
+
+.dark {
+  --color-background: #10192a;
+  --color-foreground: #e3f6fd;
+  --color-primary: #00e5ff;
+  --color-primary-foreground: #10192a;
+  --color-secondary: #1a237e;
+  --color-secondary-foreground: #e3f6fd;
+  --color-accent: #00e5ff;
+  --color-accent-foreground: #10192a;
+  --color-border: #22304a;
+  --color-input: #1a237e;
+  --color-ring: #00e5ff;
+  --color-card: #1a237ecc;
+  --color-card-foreground: #e3f6fd;
+  --color-popover: #1a237ecc;
+  --color-popover-foreground: #e3f6fd;
+  --color-muted: #22304a;
+  --color-muted-foreground: #00e5ff;
+  --color-success: #2dd4bf;
+  --color-success-foreground: #10192a;
+  --color-warning: #fbbf24;
+  --color-warning-foreground: #10192a;
+  --color-error: #ef4444;
+  --color-error-foreground: #10192a;
+  --color-surface: #10192a;
+  --color-text-primary: #e3f6fd;
+  --color-text-secondary: #00e5ff;
+  --radius: 1.25rem;
+}
+
+/* 3. Glassmorphism Utility */
+.glass-card {
+  background: var(--color-card, #ffffffcc);
+  border-radius: var(--radius, 1.25rem);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1.5px solid var(--color-accent, #00e5ff33);
+  border-bottom: 2.5px solid var(--color-accent, #00e5ff55);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+/* 4. Base Component Styles */
+@layer components {
+  .btn {
+    @apply px-5 py-2 rounded-lg font-semibold transition-all duration-200;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    color: var(--color-primary-foreground);
+    box-shadow: 0 2px 8px 0 rgba(0,229,255,0.08);
+    border: none;
+  }
+  .btn:hover, .btn:focus {
+    background: linear-gradient(90deg, var(--color-accent), var(--color-primary));
+    color: var(--color-accent-foreground);
+    box-shadow: 0 4px 16px 0 rgba(0,229,255,0.18);
+    outline: none;
+  }
+  .card {
+    @apply p-6 rounded-xl shadow-elevation-2 bg-[var(--color-card)] text-[var(--color-card-foreground)];
+    transition: box-shadow 0.2s;
+  }
+  .card.glass-card {
+    /* Combine with glass-card for glassmorphism */
+    box-shadow: 0 8px 32px 0 rgba(0,229,255,0.12);
+    border: 1.5px solid var(--color-accent, #00e5ff33);
+  }
+}
+
+/* 5. General Styles */
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  transition: background 0.3s, color 0.3s;
+}
