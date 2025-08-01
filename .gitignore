@@ -7,3 +7,5 @@ package-lock.json
 .idea/
 vite.config.*s.*
 cv_processor/venv/
+backend/venv/
+venv/
