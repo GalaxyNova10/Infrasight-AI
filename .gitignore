@@ -1,11 +1,32 @@
-.DS_Store
-node_modules
-.idea
-package-lock.json
-/build
+# .gitignore
+
+# Python virtual environments
+venv/
+*/venv/
+
+# Python cache & artifacts
+__pycache__/
+*.pyc
+build/
+dist/
+
+# Node dependencies
+node_modules/
+*/node_modules/
+
+# Environment files
+.env
+*/.env
+
+# IDE & Editor folders
 .vscode/
 .idea/
-vite.config.*s.*
-cv_processor/venv/
-backend/venv/
-venv/
+
+# Media and Model files
+*.mp4
+*.mov
+*.avi
+*.pt
+
+# System files
+.DS_Store
