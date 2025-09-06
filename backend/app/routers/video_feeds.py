@@ -2,7 +2,9 @@ from fastapi import APIRouter, HTTPException
 from datetime import datetime, timedelta
 import random
 from typing import List
-from ..schemas import VideoFeed
+import uuid # Import uuid
+
+from ..schemas import VideoFeed, VideoFeedBase # Import VideoFeedBase for creation
 
 router = APIRouter(prefix="/api/v1/video-feeds", tags=["video-feeds"])
 
@@ -15,91 +17,97 @@ async def get_video_feeds():
     chennai_cameras = [
         {
             "name": "T. Nagar Traffic Cam",
-            "location": "T. Nagar",
-            "coordinates": {"lat": 13.0478, "lng": 80.2425},
+            "location_name": "T. Nagar", # Changed to location_name
+            "latitude": 13.0478, # Changed to latitude
+            "longitude": 80.2425, # Changed to longitude
             "description": "Traffic monitoring at T. Nagar junction"
         },
         {
             "name": "Anna Salai Main Cam",
-            "location": "Anna Salai",
-            "coordinates": {"lat": 13.0827, "lng": 80.2707},
+            "location_name": "Anna Salai",
+            "latitude": 13.0827,
+            "longitude": 80.2707,
             "description": "Main road monitoring on Anna Salai"
         },
         {
             "name": "Adyar Bridge Cam",
-            "location": "Adyar",
-            "coordinates": {"lat": 13.0067, "lng": 80.2544},
+            "location_name": "Adyar",
+            "latitude": 13.0067,
+            "longitude": 80.2544,
             "description": "Bridge and traffic monitoring"
         },
         {
             "name": "Mylapore Temple Cam",
-            "location": "Mylapore",
-            "coordinates": {"lat": 13.0370, "lng": 80.2707},
+            "location_name": "Mylapore",
+            "latitude": 13.0370,
+            "longitude": 80.2707,
             "description": "Area around Kapaleeshwarar Temple"
         },
         {
             "name": "Velachery Junction Cam",
-            "location": "Velachery",
-            "coordinates": {"lat": 12.9716, "lng": 80.2207},
+            "location_name": "Velachery",
+            "latitude": 12.9716,
+            "longitude": 80.2207,
             "description": "Major junction monitoring"
         },
         {
             "name": "Sholinganallur OMR Cam",
-            "location": "Sholinganallur",
-            "coordinates": {"lat": 12.9067, "lng": 80.2277},
+            "location_name": "Sholinganallur",
+            "latitude": 12.9067,
+            "longitude": 80.2277,
             "description": "OMR corridor monitoring"
         },
         {
             "name": "Anna Nagar Circle Cam",
-            "location": "Anna Nagar",
-            "coordinates": {"lat": 13.0827, "lng": 80.2707},
+            "location_name": "Anna Nagar",
+            "latitude": 13.0827,
+            "longitude": 80.2707,
             "description": "Anna Nagar circle traffic monitoring"
         },
         {
             "name": "Besant Nagar Beach Cam",
-            "location": "Besant Nagar",
-            "coordinates": {"lat": 13.0067, "lng": 80.2544},
+            "location_name": "Besant Nagar",
+            "latitude": 13.0067,
+            "longitude": 80.2544,
             "description": "Beach area monitoring"
         },
         {
             "name": "Guindy Industrial Cam",
-            "location": "Guindy",
-            "coordinates": {"lat": 13.0067, "lng": 80.2544},
+            "location_name": "Guindy",
+            "latitude": 13.0067,
+            "longitude": 80.2544,
             "description": "Industrial area monitoring"
         },
         {
             "name": "Chromepet Station Cam",
-            "location": "Chromepet",
-            "coordinates": {"lat": 12.9516, "lng": 80.1407},
+            "location_name": "Chromepet",
+            "latitude": 12.9516,
+            "longitude": 80.1407,
             "description": "Railway station area monitoring"
         }
     ]
-    
+
     video_feeds = []
-    
+
     for i, camera in enumerate(chennai_cameras):
         # Simulate some cameras being offline occasionally
-        status = "Active" if random.random() > 0.1 else "Offline"
-        
-        # Generate placeholder video URLs (in real implementation, these would be actual stream URLs)
-        video_url = f"https://chennai-civic-watch.com/streams/cam-{i+1:02d}"
-        
-        # Add some variation to make it feel real-time
-        last_updated = datetime.utcnow()
-        if status == "Offline":
-            last_updated = datetime.utcnow() - timedelta(minutes=random.randint(5, 60))
-        
+        is_active = random.random() > 0.1
+
+        # Generate placeholder stream URL
+        stream_url = f"https://chennai-civic-watch.com/streams/cam-{i+1:02d}"
+
         video_feeds.append(VideoFeed(
-            id=f"cam-{i+1:02d}",
+            id=uuid.uuid4(), # Generate a UUID for the ID
             name=camera["name"],
-            location=camera["location"],
-            status=status,
-            url=video_url,
-            coordinates=camera["coordinates"],
-            description=camera["description"],
-            last_updated=last_updated.isoformat()
+            location_name=camera["location_name"],
+            latitude=camera["latitude"],
+            longitude=camera["longitude"],
+            stream_url=stream_url,
+            is_active=is_active,
+            ai_detection_enabled=True, # Assuming AI detection is always enabled for these feeds
+            created_at=datetime.utcnow()
         ))
-    
+
     return video_feeds
 
 @router.get("/{feed_id}", response_model=VideoFeed)
@@ -110,20 +118,20 @@ async def get_video_feed(feed_id: str):
     # Find the feed in our list
     feeds = await get_video_feeds()
     for feed in feeds:
-        if feed.id == feed_id:
+        if str(feed.id) == feed_id: # Compare UUID as string
             return feed
-    
+
     raise HTTPException(status_code=404, detail="Video feed not found")
 
-@router.get("/location/{location}", response_model=List[VideoFeed])
-async def get_video_feeds_by_location(location: str):
+@router.get("/location/{location_name}", response_model=List[VideoFeed]) # Changed path parameter name
+async def get_video_feeds_by_location(location_name: str): # Changed parameter name
     """
     Get all video feeds for a specific location.
     """
     feeds = await get_video_feeds()
-    location_feeds = [feed for feed in feeds if feed.location.lower() == location.lower()]
-    
+    location_feeds = [feed for feed in feeds if feed.location_name.lower() == location_name.lower()] # Use location_name
+
     if not location_feeds:
-        raise HTTPException(status_code=404, detail=f"No video feeds found for location: {location}")
-    
-    return location_feeds 
+        raise HTTPException(status_code=404, detail=f"No video feeds found for location: {location_name}")
+
+    return location_feeds

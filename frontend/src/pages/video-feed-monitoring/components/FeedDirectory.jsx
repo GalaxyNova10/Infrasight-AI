@@ -12,8 +12,8 @@ const FeedDirectory = ({ onFeedToggle, selectedFeeds, onFeedSelect }) => {
   const cameraFeeds = [
     {
       id: 'cam_001',
-      name: 'Main Street & Oak Ave',
-      location: 'Downtown District',
+      name: 'Anna Salai & Mount Road',
+      location: 'Teynampet',
       status: 'active',
       type: 'traffic',
       isFavorite: true,

@@ -75,11 +75,11 @@ const FilterPanel = ({ onFiltersChange }) => {
   };
 
   return (
-    <div className="bg-surface border border-border rounded-lg mb-6">
-      <div className="flex items-center justify-between p-4 border-b border-border">
+    <div className="bg-white rounded-lg shadow-md mb-6">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <div className="flex items-center space-x-2">
-          <Icon name="Filter" size={20} className="text-text-secondary" />
-          <h3 className="font-semibold text-text-primary">Filters</h3>
+          <Icon name="Filter" size={20} className="text-gray-600" />
+          <h3 className="font-semibold text-gray-800">Filters</h3>
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -140,15 +140,15 @@ const FilterPanel = ({ onFiltersChange }) => {
             />
           </div>
 
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-            <div className="text-sm text-text-secondary">
-              Showing data for: <span className="font-medium text-text-primary">Last 30 Days, All Departments</span>
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+            <div className="text-sm text-gray-600">
+              Showing data for: <span className="font-medium text-gray-800">Last 30 Days, All Departments</span>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm" iconName="Download" iconSize={16}>
                 Export Data
               </Button>
-              <Button variant="default" size="sm" iconName="RefreshCw" iconSize={16}>
+              <Button variant="primary" size="sm" iconName="RefreshCw" iconSize={16}>
                 Refresh
               </Button>
             </div>

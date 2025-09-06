@@ -1,220 +1,98 @@
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status, Form, UploadFile, File
 from sqlalchemy.orm import Session
-from geoalchemy2.shape import to_shape
-from datetime import datetime, timedelta
+from typing import List, Optional
+from datetime import datetime
+import uuid
+import os # Import os for file size check
 
-from .. import models, schemas, database
+# Import from your project's modules
+from .. import database, schemas, crud, models, security
 
 router = APIRouter(
-    prefix="/api/v1",
+    prefix="/citizen-reports",
     tags=["Citizen Reports"]
 )
 
+# Define allowed image types and max file size
+ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif"]
+MAX_IMAGE_SIZE_MB = 5
+MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024
 
-@router.post("/users/register", response_model=schemas.UserResponse, status_code=201)
-def register_user(user_data: schemas.UserRegistration, db: Session = Depends(database.get_db)):
-    """Register a new citizen user for the Chennai infrastructure reporting system."""
-    try:
-        # Check if user already exists
-        existing_user = db.query(models.User).filter(models.User.email == user_data.email).first()
-        if existing_user:
-            raise HTTPException(status_code=400, detail="User with this email already exists")
-        
-        # Create new user
-        db_user = models.User(
-            first_name=user_data.firstName,
-            last_name=user_data.lastName,
-            email=user_data.email,
-            phone=user_data.phone,
-            address=user_data.address,
-            city=user_data.city,
-            pincode=user_data.pincode,
-            notification_preferences=user_data.notificationPreferences,
-            issue_categories=user_data.issueCategories,
-            agree_to_terms=user_data.agreeToTerms,
-            agree_to_privacy=user_data.agreeToPrivacy,
-            subscribe_newsletter=user_data.subscribeNewsletter
-        )
-        
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        
-        print(f"New user registered: {user_data.email} from {user_data.city}")
-        
-        return schemas.UserResponse(
-            id=db_user.id,
-            firstName=db_user.first_name,
-            lastName=db_user.last_name,
-            email=db_user.email,
-            city=db_user.city,
-            pincode=db_user.pincode,
-            createdAt=db_user.created_at
-        )
-        
-    except Exception as e:
-        db.rollback()
-        print(f"Error registering user: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to register user")
-
-
-@router.post("/citizen-reports", response_model=schemas.CitizenReportResponse, status_code=201)
-def create_citizen_report(report_data: schemas.CitizenReport, db: Session = Depends(database.get_db)):
-    """Create a new citizen report for infrastructure issues in Chennai."""
-    try:
-        # Create location WKT string
-        location_wkt = f'POINT({report_data.longitude} {report_data.latitude})'
-        
-        # Calculate priority score based on issue type
-        priority_score = 1
-        if report_data.issue_type in ['waterlogging', 'drains']:
-            priority_score = 4
-        elif report_data.issue_type in ['potholes', 'streetlights']:
-            priority_score = 3
-        elif report_data.issue_type in ['garbage', 'banners']:
-            priority_score = 2
-        
-        # Create citizen report
-        db_report = models.CitizenReport(
-            issue_type=report_data.issue_type,
-            description=report_data.description,
-            latitude=report_data.latitude,
-            longitude=report_data.longitude,
-            location=location_wkt,
-            address=report_data.address,
-            city_area=report_data.city_area,
-            pincode=report_data.pincode,
-            reporter_name=report_data.reporter_name,
-            reporter_email=report_data.reporter_email,
-            reporter_phone=report_data.reporter_phone,
-            priority_score=priority_score
-        )
-        
-        db.add(db_report)
-        db.commit()
-        db.refresh(db_report)
-        
-        print(f"New citizen report created: {report_data.issue_type} in {report_data.city_area}")
-        
-        # Convert location back to coordinates
-        point = to_shape(db_report.location)
-        
-        return schemas.CitizenReportResponse(
-            id=db_report.id,
-            issue_type=db_report.issue_type,
-            description=db_report.description,
-            location=schemas.Location(lat=point.y, lon=point.x),
-            address=db_report.address,
-            city_area=db_report.city_area,
-            pincode=db_report.pincode,
-            status=db_report.status,
-            reported_at=db_report.reported_at,
-            reporter_name=db_report.reporter_name,
-            reporter_email=db_report.reporter_email
-        )
-        
-    except Exception as e:
-        db.rollback()
-        print(f"Error creating citizen report: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to create citizen report")
-
-
-@router.get("/citizen-reports", response_model=List[schemas.CitizenReportResponse])
-def get_citizen_reports(
-    city_area: str = None,
-    issue_type: str = None,
-    status: str = None,
-    limit: int = 100,
-    db: Session = Depends(database.get_db)
+@router.post("/", response_model=schemas.InfrastructureIssue, status_code=status.HTTP_201_CREATED)
+def create_citizen_report(
+    db: Session = Depends(database.get_db),
+    current_user: models.UserProfile = Depends(security.get_current_active_user),
+    # Use Form(...) for multipart/form-data from the frontend
+    title: str = Form(...),
+    description: str = Form(...),
+    issue_type: schemas.IssueTypeEnum = Form(...),
+    latitude: float = Form(...),
+    longitude: float = Form(...),
+    address: Optional[str] = Form(None),
+    image: Optional[UploadFile] = File(None) # Optional file upload
 ):
-    """Get all citizen reports with optional filtering."""
-    query = db.query(models.CitizenReport)
+    """
+    Creates a new infrastructure issue from a citizen report.
+    This endpoint is designed to be called from a form that includes a file upload.
+    """
     
-    if city_area:
-        query = query.filter(models.CitizenReport.city_area == city_area)
-    if issue_type:
-        query = query.filter(models.CitizenReport.issue_type == issue_type)
-    if status:
-        query = query.filter(models.CitizenReport.status == status)
-    
-    reports = query.order_by(models.CitizenReport.reported_at.desc()).limit(limit).all()
-    
-    response_reports = []
-    for report in reports:
-        point = to_shape(report.location)
-        response_reports.append(
-            schemas.CitizenReportResponse(
-                id=report.id,
-                issue_type=report.issue_type,
-                description=report.description,
-                location=schemas.Location(lat=point.y, lon=point.x),
-                address=report.address,
-                city_area=report.city_area,
-                pincode=report.pincode,
-                status=report.status,
-                reported_at=report.reported_at,
-                reporter_name=report.reporter_name,
-                reporter_email=report.reporter_email
+    # Validate image file if provided
+    if image:
+        if image.content_type not in ALLOWED_IMAGE_TYPES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid image type. Only {', '.join(ALLOWED_IMAGE_TYPES)} are allowed."
             )
-        )
-    
-    return response_reports
+        # Read a small chunk to check size without loading entire file into memory
+        # This is a basic check, for very large files, streaming might be better
+        image.file.seek(0, os.SEEK_END)
+        file_size = image.file.tell()
+        image.file.seek(0) # Reset file pointer to the beginning
 
+        if file_size > MAX_IMAGE_SIZE_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Image file size exceeds {MAX_IMAGE_SIZE_MB}MB limit."
+            )
 
-@router.get("/citizen-reports/{report_id}", response_model=schemas.CitizenReportResponse)
-def get_citizen_report(report_id: int, db: Session = Depends(database.get_db)):
-    """Get a specific citizen report by ID."""
-    report = db.query(models.CitizenReport).filter(models.CitizenReport.id == report_id).first()
-    if not report:
-        raise HTTPException(status_code=404, detail="Citizen report not found")
+    # In a real-world application, you would add logic here to:
+    # 1. Get the currently logged-in user to set as the reporter.
+    # 2. If an 'image' is provided, upload it to a cloud storage service (like AWS S3)
+    #    and save the URL to a new IssueMedia record in the database.
     
-    point = to_shape(report.location)
-    return schemas.CitizenReportResponse(
-        id=report.id,
-        issue_type=report.issue_type,
-        description=report.description,
-        location=schemas.Location(lat=point.y, lon=point.x),
-        address=report.address,
-        city_area=report.city_area,
-        pincode=report.pincode,
-        status=report.status,
-        reported_at=report.reported_at,
-        reporter_name=report.reporter_name,
-        reporter_email=report.reporter_email
+    # Create the Pydantic schema for the new issue
+    report_data = schemas.InfrastructureIssueCreate(
+        title=title,
+        description=description,
+        issue_type=issue_type,
+        latitude=latitude,
+        longitude=longitude,
+        address=address,
+        detection_source='citizen_report',
+        reported_by_id=current_user.id
     )
+    
+    # In a fully implemented system, you would call your CRUD function:
+    new_issue = crud.create_infrastructure_issue(db=db, issue=report_data)
+    return new_issue
+    
+    # Returning a placeholder response until the user ID logic is complete
+    # to prevent database errors for now.
+    # return {
+    #     "id": uuid.uuid4(),
+    #     "title": title,
+    #     "description": description,
+    #     "issue_type": issue_type,
+    #     "latitude": latitude,
+    #     "longitude": longitude,
+    #     "address": address,
+    #     "status": "detected",
+    #     "priority": "medium",
+    #     "detection_source": "citizen_report",
+    #     "detected_at": datetime.utcnow(),
+    #     "reporter": None
+    # }
 
-
-@router.patch("/citizen-reports/{report_id}", response_model=schemas.CitizenReportResponse)
-def update_citizen_report_status(
-    report_id: int, 
-    status: str, 
-    assigned_to: str = None,
-    db: Session = Depends(database.get_db)
-):
-    """Update the status of a citizen report."""
-    report = db.query(models.CitizenReport).filter(models.CitizenReport.id == report_id).first()
-    if not report:
-        raise HTTPException(status_code=404, detail="Citizen report not found")
-    
-    report.status = status
-    if assigned_to:
-        report.assigned_to = assigned_to
-    
-    db.commit()
-    db.refresh(report)
-    
-    point = to_shape(report.location)
-    return schemas.CitizenReportResponse(
-        id=report.id,
-        issue_type=report.issue_type,
-        description=report.description,
-        location=schemas.Location(lat=point.y, lon=point.x),
-        address=report.address,
-        city_area=report.city_area,
-        pincode=report.pincode,
-        status=report.status,
-        reported_at=report.reported_at,
-        reporter_name=report.reporter_name,
-        reporter_email=report.reporter_email
-    )
+# NOTE: The other endpoints for getting/updating reports should be in a separate
+# `issues.py` router, since citizen reports are just one type of issue.
+# This keeps your API clean and avoids duplicate logic.

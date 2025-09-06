@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../../components/ui/Header';
-import Breadcrumb from '../../components/ui/Breadcrumb';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+
 import MapSidebar from './components/MapSidebar';
 import MapControls from './components/MapControls';
 import IssueMarkerPopup from './components/IssueMarkerPopup';
 import MapLegend from './components/MapLegend';
 import BulkOperationsModal from './components/BulkOperationsModal';
 import ExportModal from './components/ExportModal';
-import Icon from '../../components/AppIcon';
-
 
 const InteractiveInfrastructureMap = () => {
   // Map state
@@ -33,7 +31,7 @@ const InteractiveInfrastructureMap = () => {
     dateRange: { start: '', end: '' }
   });
 
-  // Mock issues data
+  // Mock issues data (Chennai-specific)
   const mockIssues = [
     {
       id: 'ISS-2025-001',
@@ -42,95 +40,79 @@ const InteractiveInfrastructureMap = () => {
       type: 'potholes',
       severity: 'high',
       status: 'assigned',
-      location: '1234 Anna Salai, T. Nagar',
-      coordinates: { lat: 13.0827, lng: 80.2707 },
+      location: 'Anna Salai, Chennai',
+      coordinates: { lat: 13.0625, lng: 80.2500 },
       reportedAt: '2025-07-28T10:30:00Z',
       reportedBy: 'Citizen Portal',
       assignedTo: 'John Doe',
       department: 'public-works',
       priorityScore: 85,
-      image: 'https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg'
+      image: '/assets/images/no_image.png'
     },
     {
       id: 'ISS-2025-002',
-      title: 'Water Main Break in Adyar',
-      description: 'AI system detected potential water main break with visible water pooling and pressure drop.',
-      type: 'waterlogging',
-      severity: 'critical',
-      status: 'in-progress',
-      location: '567 Adyar Bridge Road, Adyar',
-      coordinates: { lat: 13.0067, lng: 80.2566 },
-      reportedAt: '2025-07-29T02:15:00Z',
-      reportedBy: 'AI Detection System',
-      assignedTo: 'Jane Smith',
-      department: 'utilities',
-      priorityScore: 95,
-      image: 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg'
+      title: 'Water Leak near Marina Beach',
+      description: 'Significant water leakage observed near the lighthouse, causing inconvenience to pedestrians.',
+      type: 'leaks',
+      severity: 'medium',
+      status: 'reported',
+      location: 'Marina Beach, Chennai',
+      coordinates: { lat: 13.0580, lng: 80.2820 },
+      reportedAt: '2025-07-27T14:00:00Z',
+      reportedBy: 'Citizen Portal',
+      assignedTo: null,
+      department: 'water-utilities',
+      priorityScore: 70,
+      image: 'https://images.pexels.com/photos/268533/pexels-photo-268533.jpeg'
     },
     {
       id: 'ISS-2025-003',
-      title: 'Street Light Malfunction in Mylapore',
-      description: 'Multiple street lights not functioning on residential street, creating safety hazard.',
-      type: 'streetlights',
-      severity: 'medium',
-      status: 'reported',
-      location: '890 Santhome High Road, Mylapore',
-      coordinates: { lat: 13.0377, lng: 80.2707 },
-      reportedAt: '2025-07-27T18:45:00Z',
-      reportedBy: 'Mike Johnson',
-      assignedTo: null,
-      department: 'public-works',
-      priorityScore: 65,
-      image: 'https://images.pexels.com/photos/301920/pexels-photo-301920.jpeg'
+      title: 'Non-functional Streetlight in Besant Nagar',
+      description: 'Streetlight near Elliot\'s Beach not working, making the area dark and unsafe at night.',
+      type: 'lighting',
+      severity: 'low',
+      status: 'in-progress',
+      location: 'Besant Nagar, Chennai',
+      coordinates: { lat: 12.9900, lng: 80.2680 },
+      reportedAt: '2025-07-26T09:15:00Z',
+      reportedBy: 'Citizen Portal',
+      assignedTo: 'Jane Smith',
+      department: 'electricity-board',
+      priorityScore: 60,
+      image: 'https://images.pexels.com/photos/1036623/pexels-photo-1036623.jpeg'
     },
     {
       id: 'ISS-2025-004',
-      title: 'Overflowing Waste Bins in Velachery',
-      description: 'Multiple waste bins overflowing in commercial district, attracting pests and creating unsanitary conditions.',
-      type: 'garbage',
-      severity: 'medium',
-      status: 'assigned',
-      location: '321 Velachery Main Road, Velachery',
-      coordinates: { lat: 12.9789, lng: 80.2207 },
-      reportedAt: '2025-07-28T14:20:00Z',
-      reportedBy: 'Business Owner',
-      assignedTo: 'Sarah Wilson',
+      title: 'Garbage Overflow in T. Nagar',
+      description: 'Dustbins overflowing near Panagal Park, attracting pests and causing foul smell.',
+      type: 'waste',
+      severity: 'high',
+      status: 'reported',
+      location: 'T. Nagar, Chennai',
+      coordinates: { lat: 13.0400, lng: 80.2300 },
+      reportedAt: '2025-07-25T11:00:00Z',
+      reportedBy: 'Citizen Portal',
+      assignedTo: null,
       department: 'sanitation',
-      priorityScore: 70,
-      image: 'https://images.pexels.com/photos/2827392/pexels-photo-2827392.jpeg'
+      priorityScore: 80,
+      image: 'https://images.pexels.com/photos/235986/pexels-photo-235986.jpeg'
     },
     {
       id: 'ISS-2025-005',
-      title: 'Illegal Banners on OMR',
-      description: 'Multiple illegal banners and posters obstructing traffic signals and creating visual pollution.',
-      type: 'banners',
-      severity: 'medium',
-      status: 'reported',
-      location: '456 Old Mahabalipuram Road, Sholinganallur',
-      coordinates: { lat: 12.8994, lng: 80.2209 },
-      reportedAt: '2025-07-26T09:15:00Z',
-      reportedBy: 'Traffic Police',
-      assignedTo: null,
-      department: 'enforcement',
-      priorityScore: 60,
-      image: 'https://images.pexels.com/photos/2827392/pexels-photo-2827392.jpeg'
+      title: 'Damaged Road in Adyar',
+      description: 'Portion of the road near Adyar Bridge has caved in, posing a risk to vehicles.',
+      type: 'road-damage',
+      severity: 'critical',
+      status: 'assigned',
+      location: 'Adyar, Chennai',
+      coordinates: { lat: 13.0080, lng: 80.2500 },
+      reportedAt: '2025-07-24T16:45:00Z',
+      reportedBy: 'Citizen Portal',
+      assignedTo: 'David Lee',
+      department: 'public-works',
+      priorityScore: 90,
+      image: 'https://images.pexels.com/photos/1054218/pexels-photo-1054218.jpeg'
     },
-    {
-      id: 'ISS-2025-006',
-      title: 'Open Drain in Anna Nagar',
-      description: 'Open drain causing foul smell and health hazard in residential area.',
-      type: 'drains',
-      severity: 'high',
-      status: 'in-progress',
-      location: '789 2nd Avenue, Anna Nagar',
-      coordinates: { lat: 13.0827, lng: 80.2207 },
-      reportedAt: '2025-07-25T16:30:00Z',
-      reportedBy: 'Resident',
-      assignedTo: 'Rajesh Kumar',
-      department: 'sanitation',
-      priorityScore: 80,
-      image: 'https://images.pexels.com/photos/1108572/pexels-photo-1108572.jpeg'
-    }
   ];
 
   // Filter issues based on current filters
@@ -231,106 +213,68 @@ const InteractiveInfrastructureMap = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const chennaiCoordinates = [13.0827, 80.2707]; // Latitude and Longitude for Chennai
+
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="pt-16">
-        {/* Breadcrumb */}
-        <div className="px-6 py-4">
-          <Breadcrumb />
-        </div>
+    <div className="flex flex-col min-h-screen">
+      <main className="flex flex-1">
+        {/* Map Sidebar */}
+        <MapSidebar
+          filters={filters}
+          onFiltersChange={setFilters}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          onExportData={handleExportData}
+          onBulkOperations={handleBulkOperations}
+        />
 
-        {/* Map Container */}
-        <div className="relative h-[calc(100vh-120px)]">
-          {/* Map Sidebar */}
-          <MapSidebar
-            filters={filters}
-            onFiltersChange={setFilters}
-            isCollapsed={isSidebarCollapsed}
-            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            onExportData={handleExportData}
-            onBulkOperations={handleBulkOperations}
-          />
-
-          {/* Main Map Area */}
-          <div className={`transition-all duration-300 ${
-            isSidebarCollapsed ? 'ml-0' : 'ml-80'
-          } h-full relative`}>
-            
-            {/* Map Placeholder with Google Maps iframe */}
-            <div className="w-full h-full bg-gray-100 relative overflow-hidden">
-              <iframe
-                width="100%"
-                height="100%"
-                loading="lazy"
-                title="Chennai Infrastructure Map"
-                referrerPolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps?q=13.0827,80.2707&z=12&output=embed"
-                className="border-0"
-              />
-              
-              {/* Map Overlay for Demo Markers */}
-              <div className="absolute inset-0 pointer-events-none">
-                {filteredIssues.map((issue, index) => (
-                  <div
-                    key={issue.id}
-                    className="absolute pointer-events-auto cursor-pointer"
-                    style={{
-                      left: `${20 + (index * 15)}%`,
-                      top: `${30 + (index * 10)}%`,
-                      transform: 'translate(-50%, -50%)'
-                    }}
-                    onClick={() => handleIssueMarkerClick(issue)}
-                  >
-                    <div className={`w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center ${
-                      issue.severity === 'critical' ? 'bg-red-600' :
-                      issue.severity === 'high' ? 'bg-orange-500' :
-                      issue.severity === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
-                    }`}>
-                      <Icon 
-                        name={
-                          issue.type === 'potholes' ? 'AlertTriangle' :
-                          issue.type === 'waterlogging' ? 'Droplets' :
-                          issue.type === 'streetlights' ? 'Lightbulb' : 
-                          issue.type === 'garbage' ? 'Trash2' :
-                          issue.type === 'banners' ? 'Flag' :
-                          issue.type === 'drains' ? 'Droplets' : 'AlertTriangle'
-                        } 
-                        size={12} 
-                        color="white" 
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Heat Map Overlay */}
-              {showHeatMap && (
-                <div className="absolute inset-0 bg-gradient-radial from-red-500/30 via-yellow-500/20 to-transparent pointer-events-none" />
-              )}
-            </div>
-
-            {/* Issue Popup */}
-            {selectedIssue && (
-              <div 
-                className="absolute z-1000"
-                style={{
-                  left: '50%',
-                  top: '40%',
-                  transform: 'translate(-50%, -50%)'
+        {/* Main Map Area */}
+        <div className="flex-1 relative">
+          {/* Map Container */}
+          <MapContainer center={chennaiCoordinates} zoom={13} className="w-full h-full">
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            {filteredIssues.map(issue => (
+              <Marker
+                key={issue.id}
+                position={[issue.coordinates.lat, issue.coordinates.lng]}
+                eventHandlers={{
+                  click: () => handleIssueMarkerClick(issue),
                 }}
               >
-                <IssueMarkerPopup
-                  issue={selectedIssue}
-                  onClose={() => setSelectedIssue(null)}
-                  onAssign={handleAssignIssue}
-                  onUpdateStatus={handleUpdateStatus}
-                  onViewDetails={handleViewDetails}
-                />
-              </div>
-            )}
-          </div>
+                <Popup>
+                  <div>
+                    <h3>{issue.title}</h3>
+                    <p>{issue.description}</p>
+                    <p>Status: {issue.status}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+
+          {/* Issue Popup */}
+          {selectedIssue && (
+            <div 
+              className="absolute z-1000"
+              style={{
+                left: '50%',
+                top: '40%',
+                transform: 'translate(-50%, -50%)'
+              }}
+            >
+              <IssueMarkerPopup
+                issue={selectedIssue}
+                onClose={() => setSelectedIssue(null)}
+                onAssign={handleAssignIssue}
+                onUpdateStatus={handleUpdateStatus}
+                onViewDetails={handleViewDetails}
+              />
+            </div>
+          )}
+
 
           {/* Map Controls */}
           <MapControls
@@ -351,41 +295,25 @@ const InteractiveInfrastructureMap = () => {
             onToggle={() => setShowLegend(!showLegend)}
           />
 
-          {/* Status Bar */}
-          <div className="absolute bottom-4 right-4 left-4 lg:left-auto lg:right-4 lg:w-auto">
-            <div className="bg-surface border border-border rounded-lg shadow-elevation-2 px-4 py-2">
-              <div className="flex items-center justify-between space-x-4 text-sm">
-                <div className="flex items-center space-x-2">
-                  <Icon name="MapPin" size={14} className="text-text-secondary" />
-                  <span className="text-text-secondary">
-                    Showing {filteredIssues.length} of {mockIssues.length} issues
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-text-secondary">Live Updates</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          
         </div>
-
-        {/* Modals */}
-        <BulkOperationsModal
-          isOpen={showBulkModal}
-          onClose={() => setShowBulkModal(false)}
-          selectedIssues={selectedIssues}
-          onApplyOperations={handleApplyBulkOperations}
-        />
-
-        <ExportModal
-          isOpen={showExportModal}
-          onClose={() => setShowExportModal(false)}
-          onExport={handleExport}
-          totalIssues={mockIssues.length}
-          filteredIssues={filteredIssues.length}
-        />
       </main>
+
+      {/* Modals */}
+      <BulkOperationsModal
+        isOpen={showBulkModal}
+        onClose={() => setShowBulkModal(false)}
+        selectedIssues={selectedIssues}
+        onApplyOperations={handleApplyBulkOperations}
+      />
+
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExport}
+        totalIssues={mockIssues.length}
+        filteredIssues={filteredIssues.length}
+      />
     </div>
   );
 };

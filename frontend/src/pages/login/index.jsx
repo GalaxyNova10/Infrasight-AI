@@ -1,5 +1,5 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import LoginForm from './components/LoginForm';
 import BrandingSection from './components/BrandingSection';
 
@@ -71,18 +71,7 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Mobile System Status Bar */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border p-3">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-success rounded-full"></div>
-              <span className="text-text-secondary">System Operational</span>
-            </div>
-            <span className="text-text-secondary text-xs">
-              &copy; {new Date().getFullYear()} Greater Chennai Corporation
-            </span>
-          </div>
-        </div>
+        
       </div>
     </>
   );

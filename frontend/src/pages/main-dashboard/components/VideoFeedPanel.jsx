@@ -10,8 +10,8 @@ const VideoFeedPanel = () => {
   const videoFeeds = [
     {
       id: 1,
-      name: 'Main St Camera 01',
-      location: 'Main Street & 5th Avenue',
+      name: 'Anna Salai Camera 01',
+      location: 'Anna Salai, Chennai',
       status: 'active',
       aiDetections: 3,
       lastDetection: '2 min ago',
@@ -20,8 +20,8 @@ const VideoFeedPanel = () => {
     },
     {
       id: 2,
-      name: 'Oak St Camera 02',
-      location: 'Oak Street Bridge',
+      name: 'Marina Beach Camera 02',
+      location: 'Marina Beach, Chennai',
       status: 'active',
       aiDetections: 1,
       lastDetection: '5 min ago',
@@ -30,8 +30,8 @@ const VideoFeedPanel = () => {
     },
     {
       id: 3,
-      name: 'Park Ave Camera 03',
-      location: 'Park Avenue Junction',
+      name: 'T. Nagar Camera 03',
+      location: 'T. Nagar, Chennai',
       status: 'maintenance',
       aiDetections: 0,
       lastDetection: '1 hour ago',
@@ -40,8 +40,8 @@ const VideoFeedPanel = () => {
     },
     {
       id: 4,
-      name: 'Broadway Camera 04',
-      location: 'Broadway & 42nd Street',
+      name: 'Besant Nagar Camera 04',
+      location: 'Besant Nagar, Chennai',
       status: 'active',
       aiDetections: 2,
       lastDetection: '1 min ago',

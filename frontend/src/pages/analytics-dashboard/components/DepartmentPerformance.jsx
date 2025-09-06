@@ -5,39 +5,39 @@ import Icon from '../../../components/AppIcon';
 const DepartmentPerformance = () => {
   const data = [
     {
-      department: 'Public Works',
-      detected: 485,
-      resolved: 421,
-      avgResolutionTime: 3.2,
-      efficiency: 86.8
+      department: 'Public Works Dept.',
+      detected: 520,
+      resolved: 480,
+      avgResolutionTime: 3.5,
+      efficiency: 92.3
     },
     {
-      department: 'Water Utilities',
-      detected: 312,
-      resolved: 298,
-      avgResolutionTime: 2.8,
-      efficiency: 95.5
+      department: 'Water Supply & Sewerage',
+      detected: 350,
+      resolved: 330,
+      avgResolutionTime: 2.9,
+      efficiency: 94.3
     },
     {
-      department: 'Transportation',
-      detected: 628,
-      resolved: 567,
-      avgResolutionTime: 4.1,
-      efficiency: 90.3
+      department: 'Traffic & Roads',
+      detected: 680,
+      resolved: 610,
+      avgResolutionTime: 4.2,
+      efficiency: 89.7
     },
     {
-      department: 'Parks & Recreation',
-      detected: 156,
-      resolved: 142,
-      avgResolutionTime: 5.2,
-      efficiency: 91.0
+      department: 'Parks & Green Spaces',
+      detected: 180,
+      resolved: 165,
+      avgResolutionTime: 5.0,
+      efficiency: 91.7
     },
     {
-      department: 'Waste Management',
-      detected: 234,
-      resolved: 218,
-      avgResolutionTime: 1.9,
-      efficiency: 93.2
+      department: 'Solid Waste Management',
+      detected: 280,
+      resolved: 265,
+      avgResolutionTime: 2.1,
+      efficiency: 94.6
     }
   ];
 
@@ -45,20 +45,20 @@ const DepartmentPerformance = () => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-surface border border-border rounded-lg p-4 shadow-elevation-2">
-          <p className="font-medium text-text-primary mb-2">{label}</p>
+        <div className="bg-white rounded-lg p-4 shadow-lg">
+          <p className="font-medium text-gray-900 mb-2">{label}</p>
           <div className="space-y-1">
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-gray-600">
               Detected: <span className="font-medium text-primary">{data.detected}</span>
             </p>
-            <p className="text-sm text-text-secondary">
-              Resolved: <span className="font-medium text-success">{data.resolved}</span>
+            <p className="text-sm text-gray-600">
+              Resolved: <span className="font-medium text-green-600">{data.resolved}</span>
             </p>
-            <p className="text-sm text-text-secondary">
-              Avg Resolution: <span className="font-medium text-warning">{data.avgResolutionTime} days</span>
+            <p className="text-sm text-gray-600">
+              Avg Resolution: <span className="font-medium text-yellow-600">{data.avgResolutionTime} days</span>
             </p>
-            <p className="text-sm text-text-secondary">
-              Efficiency: <span className="font-medium text-accent">{data.efficiency}%</span>
+            <p className="text-sm text-gray-600">
+              Efficiency: <span className="font-medium text-purple-600">{data.efficiency}%</span>
             </p>
           </div>
         </div>

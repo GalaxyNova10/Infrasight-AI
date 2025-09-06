@@ -1,7 +1,7 @@
 import os
 from twilio.rest import Client
 from dotenv import load_dotenv
-from . import schemas  # make sure your import is relative if this is inside the app package
+from . import schemas # Use the main schemas file
 
 # Load environment variables from .env file
 load_dotenv()
@@ -13,32 +13,35 @@ RECIPIENT_NUMBER = os.getenv("RECIPIENT_PHONE_NUMBER")
 
 # Ensure all variables are loaded
 if not all([TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_NUMBER, RECIPIENT_NUMBER]):
-    raise ValueError("Twilio credentials not found in environment variables.")
+    # This is not a fatal error during development if you don't have Twilio set up
+    print("WARNING: Twilio credentials not fully configured. Alerts will not be sent.")
+    client = None
+else:
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-def send_alert(detection: schemas.DetectionRead):
-    """Sends SMS and Email alerts for a high-urgency detection."""
-    
-    issue_type = detection.type.replace('_', ' ').title()
+# --- THIS IS THE FIX ---
+# We now use the correct 'InfrastructureIssue' schema that exists in your schemas.py file
+def send_alert(detection: schemas.InfrastructureIssue):
+    """Sends SMS alerts for a high-urgency detection."""
+    if not client:
+        print("[INFO] Twilio client not available. Skipping alert.")
+        return
+
+    issue_type = detection.title.replace('_', ' ').title()
     message_body = (
         f"[InfraSight AI Alert] High Urgency Issue Detected!\n"
         f"Type: {issue_type}\n"
-        f"Urgency: {detection.urgency}/5\n"
-        f"Location: https://www.google.com/maps?q={detection.location.lat},{detection.location.lon}\n"
-        f"Status: {detection.status}"
+        f"Location: {detection.address}\n"
+        f"Status: {detection.status.value}" # Use .value for enums
     )
 
     try:
-        # Send SMS
         sms = client.messages.create(
             body=message_body,
             from_=TWILIO_NUMBER,
             to=RECIPIENT_NUMBER
         )
-        print(f"SMS alert sent successfully to {RECIPIENT_NUMBER}. SID: {sms.sid}")
-
-        # TODO: Implement SendGrid email sending here if needed
-
+        print(f"SMS alert sent successfully. SID: {sms.sid}")
     except Exception as e:
-        print(f"Error sending alert: {e}")
+        print(f"Error sending Twilio alert: {e}")

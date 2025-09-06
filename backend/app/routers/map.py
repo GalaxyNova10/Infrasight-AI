@@ -2,16 +2,16 @@ from fastapi import APIRouter, HTTPException, Query
 from datetime import datetime, timedelta
 import random
 from typing import List, Optional
-from ..schemas import MapIssue, GeoJSONFeature, GeoJSONFeatureCollection
+from ..schemas import MapIssue, GeoJSONFeature, GeoJSONFeatureCollection, IssueTypeEnum, IssuePriorityEnum, IssueStatusEnum # Import Enums
 
 router = APIRouter(prefix="/api/v1/map", tags=["map"])
 
 @router.get("/issues", response_model=GeoJSONFeatureCollection)
 async def get_map_issues(
-    issue_type: Optional[str] = Query(None, description="Filter by issue type"),
-    severity: Optional[str] = Query(None, description="Filter by severity level"),
-    status: Optional[str] = Query(None, description="Filter by issue status"),
-    area: Optional[str] = Query(None, description="Filter by area/locality")
+    issue_type: Optional[IssueTypeEnum] = Query(None, description="Filter by issue type"),
+    severity: Optional[IssuePriorityEnum] = Query(None, description="Filter by severity level"),
+    status: Optional[IssueStatusEnum] = Query(None, description="Filter by issue status"),
+    area: Optional[str] = Query(None, description="Filter by area/locality") # Keep as str for now, but validate against chennai_areas
 ):
     """
     Get GeoJSON data of all active infrastructure issues for the map.
@@ -41,42 +41,40 @@ async def get_map_issues(
         "Nungambakkam": {"lat": 13.0667, "lng": 80.2333},
         "Kodambakkam": {"lat": 13.0500, "lng": 80.2167}
     }
-    
-    # Chennai-specific issue types
-    issue_types = [
-        "Waterlogging", "Pothole", "Street Light Outage", "Garbage Overflow",
-        "Sewage Blockage", "Traffic Signal Fault", "Road Damage", "Drain Blockage",
-        "Illegal Banners", "Damaged Property", "Traffic Congestion", "Water Supply"
-    ]
-    
+
+    # Chennai-specific issue types (from schemas.IssueTypeEnum)
+    # issue_types = [e.value for e in IssueTypeEnum] # This would be better if mock data used enums directly
+
     # Generate mock issues
     features = []
-    
+
     for i in range(random.randint(15, 35)):  # Generate 15-35 issues
         area_name = random.choice(list(chennai_areas.keys()))
         base_coords = chennai_areas[area_name]
-        
+
         # Add some random variation to coordinates within the area
         lat = base_coords["lat"] + random.uniform(-0.005, 0.005)
         lng = base_coords["lng"] + random.uniform(-0.005, 0.005)
-        
-        issue_type = random.choice(issue_types)
-        severity = random.choice(["Low", "Medium", "High", "Critical"])
-        status = random.choice(["New", "In Progress", "Assigned", "Under Review"])
-        
+
+        # Use Enum values for mock data generation
+        mock_issue_type = random.choice(list(IssueTypeEnum)).value
+        mock_severity = random.choice(list(IssuePriorityEnum)).value
+        mock_status = random.choice(list(IssueStatusEnum)).value
+        mock_confidence_score = round(random.uniform(0.6, 0.99), 2) # Generate random confidence score
+
         # Apply filters if provided
-        if issue_type and issue_type != issue_type:
+        if issue_type and issue_type.value != mock_issue_type: # Compare with .value
             continue
-        if severity and severity != severity:
+        if severity and severity.value != mock_severity: # Compare with .value
             continue
-        if status and status != status:
+        if status and status.value != mock_status: # Compare with .value
             continue
-        if area and area_name.lower() != area.lower():
+        if area and area.lower() != area_name.lower(): # Corrected filter logic
             continue
-        
+
         # Generate issue timestamp
         issue_time = datetime.utcnow() - timedelta(hours=random.randint(1, 168))  # 1 hour to 1 week ago
-        
+
         # Create GeoJSON feature
         feature = GeoJSONFeature(
             type="Feature",
@@ -86,21 +84,22 @@ async def get_map_issues(
             },
             properties={
                 "id": f"CHEN-{random.randint(1000, 9999)}",
-                "issueType": issue_type,
-                "severity": severity,
-                "status": status,
+                "issueType": mock_issue_type, # Use mock_issue_type
+                "severity": mock_severity, # Use mock_severity
+                "status": mock_status, # Use mock_status
                 "area": area_name,
                 "timestamp": issue_time.isoformat(),
-                "description": f"{issue_type} issue in {area_name}",
+                "description": f"{mock_issue_type} issue in {area_name}",
                 "reporter": f"Citizen-{random.randint(100, 999)}",
                 "assignedTo": f"GCC {random.choice(['Roads', 'Water', 'Electrical', 'Sanitation'])} Department",
-                "priority": random.choice(["Low", "Medium", "High"]),
-                "estimatedResolutionTime": f"{random.randint(1, 7)} days"
+                "priority": random.choice(list(IssuePriorityEnum)).value, # Use Enum value
+                "estimatedResolutionTime": f"{random.randint(1, 7)} days",
+                "confidence_score": mock_confidence_score # Add confidence score
             }
         )
-        
+
         features.append(feature)
-    
+
     return GeoJSONFeatureCollection(
         type="FeatureCollection",
         features=features
@@ -116,7 +115,7 @@ async def get_map_issue(issue_id: str):
     for feature in all_issues.features:
         if feature.properties["id"] == issue_id:
             return feature
-    
+
     raise HTTPException(status_code=404, detail="Issue not found")
 
 @router.get("/issues/area/{area_name}", response_model=GeoJSONFeatureCollection)
@@ -127,8 +126,8 @@ async def get_map_issues_by_area(area_name: str):
     return await get_map_issues(area=area_name)
 
 @router.get("/issues/type/{issue_type}", response_model=GeoJSONFeatureCollection)
-async def get_map_issues_by_type(issue_type: str):
+async def get_map_issues_by_type(issue_type: IssueTypeEnum): # Use Enum
     """
     Get all issues of a specific type.
     """
-    return await get_map_issues(issue_type=issue_type) 
+    return await get_map_issues(issue_type=issue_type)

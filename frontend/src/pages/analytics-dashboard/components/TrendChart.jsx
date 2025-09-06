@@ -4,35 +4,35 @@ import Icon from '../../../components/AppIcon';
 
 const TrendChart = () => {
   const data = [
-    { date: '2025-01-01', detected: 45, resolved: 38, pending: 7 },
-    { date: '2025-01-02', detected: 52, resolved: 41, pending: 18 },
-    { date: '2025-01-03', detected: 38, resolved: 45, pending: 11 },
-    { date: '2025-01-04', detected: 61, resolved: 52, pending: 20 },
-    { date: '2025-01-05', detected: 48, resolved: 58, pending: 10 },
-    { date: '2025-01-06', detected: 55, resolved: 49, pending: 16 },
-    { date: '2025-01-07', detected: 42, resolved: 51, pending: 7 },
-    { date: '2025-01-08', detected: 58, resolved: 45, pending: 20 },
-    { date: '2025-01-09', detected: 49, resolved: 54, pending: 15 },
-    { date: '2025-01-10', detected: 63, resolved: 48, pending: 30 },
-    { date: '2025-01-11', detected: 51, resolved: 59, pending: 22 },
-    { date: '2025-01-12', detected: 47, resolved: 52, pending: 17 },
-    { date: '2025-01-13', detected: 56, resolved: 46, pending: 27 },
-    { date: '2025-01-14', detected: 44, resolved: 55, pending: 16 },
-    { date: '2025-01-15', detected: 59, resolved: 51, pending: 24 },
-    { date: '2025-01-16', detected: 48, resolved: 57, pending: 15 },
-    { date: '2025-01-17', detected: 53, resolved: 49, pending: 19 },
-    { date: '2025-01-18', detected: 46, resolved: 54, pending: 11 },
-    { date: '2025-01-19', detected: 61, resolved: 47, pending: 25 },
-    { date: '2025-01-20', detected: 49, resolved: 58, pending: 16 },
-    { date: '2025-01-21', detected: 54, resolved: 52, pending: 18 },
-    { date: '2025-01-22', detected: 47, resolved: 56, pending: 9 },
-    { date: '2025-01-23', detected: 58, resolved: 49, pending: 18 },
-    { date: '2025-01-24', detected: 52, resolved: 55, pending: 15 },
-    { date: '2025-01-25', detected: 45, resolved: 51, pending: 9 },
-    { date: '2025-01-26', detected: 59, resolved: 48, pending: 20 },
-    { date: '2025-01-27', detected: 51, resolved: 57, pending: 14 },
-    { date: '2025-01-28', detected: 48, resolved: 53, pending: 9 },
-    { date: '2025-01-29', detected: 56, resolved: 49, pending: 16 }
+    { date: '2025-07-01', detected: 180, resolved: 150, pending: 30 },
+    { date: '2025-07-02', detected: 195, resolved: 160, pending: 35 },
+    { date: '2025-07-03', detected: 170, resolved: 175, pending: 15 },
+    { date: '2025-07-04', detected: 210, resolved: 180, pending: 30 },
+    { date: '2025-07-05', detected: 185, resolved: 200, pending: 5 },
+    { date: '2025-07-06', detected: 200, resolved: 190, pending: 10 },
+    { date: '2025-07-07', detected: 175, resolved: 190, pending: 5 },
+    { date: '2025-07-08', detected: 205, resolved: 180, pending: 25 },
+    { date: '2025-07-09', detected: 190, resolved: 195, pending: 15 },
+    { date: '2025-07-10', detected: 220, resolved: 185, pending: 35 },
+    { date: '2025-07-11', detected: 195, resolved: 210, pending: 15 },
+    { date: '2025-07-12', detected: 180, resolved: 190, pending: 10 },
+    { date: '2025-07-13', detected: 205, resolved: 175, pending: 30 },
+    { date: '2025-07-14', detected: 170, resolved: 200, pending: 5 },
+    { date: '2025-07-15', detected: 210, resolved: 190, pending: 20 },
+    { date: '2025-07-16', detected: 185, resolved: 205, pending: 5 },
+    { date: '2025-07-17', detected: 195, resolved: 185, pending: 10 },
+    { date: '2025-07-18', detected: 180, resolved: 195, pending: 5 },
+    { date: '2025-07-19', detected: 215, resolved: 180, pending: 35 },
+    { date: '2025-07-20', detected: 190, resolved: 205, pending: 15 },
+    { date: '2025-07-21', detected: 200, resolved: 190, pending: 10 },
+    { date: '2025-07-22', detected: 180, resolved: 200, pending: 5 },
+    { date: '2025-07-23', detected: 205, resolved: 185, pending: 20 },
+    { date: '2025-07-24', detected: 195, resolved: 200, pending: 5 },
+    { date: '2025-07-25', detected: 175, resolved: 190, pending: 5 },
+    { date: '2025-07-26', detected: 210, resolved: 180, pending: 30 },
+    { date: '2025-07-27', detected: 190, resolved: 200, pending: 10 },
+    { date: '2025-07-28', detected: 185, resolved: 195, pending: 10 },
+    { date: '2025-07-29', detected: 200, resolved: 190, pending: 10 }
   ];
 
   const formatDate = (dateStr) => {
@@ -43,8 +43,8 @@ const TrendChart = () => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-surface border border-border rounded-lg p-3 shadow-elevation-2">
-          <p className="font-medium text-text-primary mb-2">{formatDate(label)}</p>
+        <div className="bg-white rounded-lg p-3 shadow-lg">
+          <p className="font-medium text-gray-900 mb-2">{formatDate(label)}</p>
           {payload.map((entry, index) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: {entry.value}
@@ -57,24 +57,24 @@ const TrendChart = () => {
   };
 
   return (
-    <div className="bg-surface border border-border rounded-lg p-6">
+    <div className="bg-white rounded-lg p-6 shadow-md">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <Icon name="TrendingUp" size={20} className="text-primary" />
-          <h3 className="text-lg font-semibold text-text-primary">Issue Detection Trends</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Issue Detection Trends</h3>
         </div>
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-primary rounded-full"></div>
-            <span className="text-sm text-text-secondary">Detected</span>
+            <span className="text-sm text-gray-600">Detected</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-success rounded-full"></div>
-            <span className="text-sm text-text-secondary">Resolved</span>
+            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <span className="text-sm text-gray-600">Resolved</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-warning rounded-full"></div>
-            <span className="text-sm text-text-secondary">Pending</span>
+            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+            <span className="text-sm text-gray-600">Pending</span>
           </div>
         </div>
       </div>
@@ -95,29 +95,29 @@ const TrendChart = () => {
             <Line 
               type="monotone" 
               dataKey="detected" 
-              stroke="var(--color-primary)" 
+              stroke="hsl(var(--primary))" 
               strokeWidth={2}
               name="Issues Detected"
-              dot={{ fill: 'var(--color-primary)', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: 'var(--color-primary)', strokeWidth: 2 }}
+              dot={{ fill: 'hsl(var(--primary))' , strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: 'hsl(var(--primary))' , strokeWidth: 2 }}
             />
             <Line 
               type="monotone" 
               dataKey="resolved" 
-              stroke="var(--color-success)" 
+              stroke="#22C55E" 
               strokeWidth={2}
               name="Issues Resolved"
-              dot={{ fill: 'var(--color-success)', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: 'var(--color-success)', strokeWidth: 2 }}
+              dot={{ fill: '#22C55E', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#22C55E', strokeWidth: 2 }}
             />
             <Line 
               type="monotone" 
               dataKey="pending" 
-              stroke="var(--color-warning)" 
+              stroke="#FBBF24" 
               strokeWidth={2}
               name="Pending Issues"
-              dot={{ fill: 'var(--color-warning)', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: 'var(--color-warning)', strokeWidth: 2 }}
+              dot={{ fill: '#FBBF24', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#FBBF24', strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>

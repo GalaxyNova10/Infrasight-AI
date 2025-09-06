@@ -1,118 +1,168 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any, Literal
-from datetime import datetime
-from geoalchemy2 import Geometry
-from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, Text, JSON
+import uuid
+from pydantic import BaseModel, EmailStr, ConfigDict, Field, validator
+from typing import List, Optional, Any, Dict
+from datetime import datetime, date
+from enum import Enum # Import Enum
+import re # Import regex module
 
+# Import the enums from your models to ensure consistency
+from .models import UserRoleEnum, IssueStatusEnum, IssuePriorityEnum, IssueTypeEnum, DepartmentTypeEnum, DetectionSourceEnum, WorkOrderStatusEnum
+
+# ==============================================================================
+# Base Schemas (Shared Properties)
+# ==============================================================================
+
+class UserProfileBase(BaseModel):
+    email: EmailStr
+    full_name: str = Field(min_length=2, max_length=100)
+    phone: Optional[str] = Field(None, min_length=5, max_length=20) # Consider regex for phone number format validation
+
+class InfrastructureIssueBase(BaseModel):
+    title: str = Field(min_length=5, max_length=150)
+    description: Optional[str] = Field(None, max_length=1000)
+    issue_type: IssueTypeEnum
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    address: Optional[str] = Field(None, max_length=255)
+    priority: IssuePriorityEnum = IssuePriorityEnum.medium
+
+class VideoFeedBase(BaseModel):
+    name: str = Field(min_length=3, max_length=100)
+    location_name: str = Field(min_length=3, max_length=150)
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    stream_url: str = Field(min_length=10, max_length=255) # Consider URL validation
+
+class WorkOrderBase(BaseModel):
+    title: str = Field(min_length=5, max_length=150)
+    description: Optional[str] = Field(None, max_length=1000)
+    department: DepartmentTypeEnum
+    
+# ==============================================================================
+# Create Schemas (for POST/PUT requests - data coming IN)
+# ==============================================================================
+
+class UserProfileCreate(UserProfileBase):
+    password: str = Field(min_length=8, max_length=50) # Consider adding regex for password complexity (e.g., uppercase, number, special char)
+    role: UserRoleEnum = UserRoleEnum.citizen
+
+    @validator('password')
+    def password_complexity(cls, v):
+        if not re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", v):
+            raise ValueError('Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.')
+        return v
+
+class InfrastructureIssueCreate(InfrastructureIssueBase):
+    detection_source: DetectionSourceEnum
+    reported_by_id: uuid.UUID # Link to the user who reported it
+
+class VideoFeedCreate(VideoFeedBase):
+    is_active: bool = True
+    ai_detection_enabled: bool = True
+
+class WorkOrderCreate(WorkOrderBase):
+    issue_id: uuid.UUID
+    assigned_to_id: Optional[uuid.UUID] = None
+
+class CitizenReport(BaseModel):
+    full_name: str = Field(min_length=2, max_length=100)
+    contact_number: str = Field(min_length=5, max_length=20) # Consider regex for phone number format validation
+    locality: str = Field(min_length=2, max_length=100)
+    issue_category: str = Field(min_length=2, max_length=100) # Consider making this an Enum or validating against a predefined list
+    description: str = Field(min_length=10, max_length=1000)
+    image_url: Optional[str] = Field(None, max_length=255) # Consider URL validation
+
+# ==============================================================================
+# Read Schemas (for GET requests - data going OUT)
+# ==============================================================================
+
+class UserProfile(UserProfileBase):
+    id: uuid.UUID
+    role: UserRoleEnum
+    department: Optional[DepartmentTypeEnum] = None
+    is_active: bool
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class InfrastructureIssue(InfrastructureIssueBase):
+    id: uuid.UUID
+    status: IssueStatusEnum
+    detection_source: DetectionSourceEnum
+    detected_at: datetime
+    updated_at: datetime
+    
+    # Example of including a nested object for related data
+    reporter: Optional[UserProfile] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class VideoFeed(VideoFeedBase):
+    id: uuid.UUID
+    is_active: bool
+    ai_detection_enabled: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class WorkOrder(WorkOrderBase):
+    id: uuid.UUID
+    issue_id: uuid.UUID
+    status: WorkOrderStatusEnum
+    created_at: datetime
+    updated_at: datetime
+    assigned_to: Optional[UserProfile] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+class CitizenReportResponse(CitizenReport):
+    id: uuid.UUID
+    created_at: datetime
 
 class Location(BaseModel):
     lat: float
     lon: float
 
+# ==============================================================================
+# Update Schemas
+# ==============================================================================
 
-class DetectionBase(BaseModel):
-    type: Literal['pothole', 'waterlogging', 'garbage', 'streetlights', 'traffic', 'banners', 'drains', 'damaged_property']
-    confidence: float
-    location: Location
+class WorkOrderStatusUpdate(BaseModel):
+    status: WorkOrderStatusEnum
+    notes: Optional[str] = Field(None, max_length=1000)
 
+# ==============================================================================
+# Auth & Token Schemas
+# ==============================================================================
 
-class DetectionCreate(DetectionBase):
-    pass
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
+class TokenData(BaseModel):
+    username: Optional[str] = None
 
-class DetectionRead(DetectionBase):
-    id: int
-    urgency: int
-    status: str = 'reported'
-    timestamp: datetime
+class GoogleToken(BaseModel):
+    token: str
 
-    model_config = {
-        "from_attributes": True  # Enables model conversion from ORM objects
-    }
+class PasswordResetRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8, max_length=50)
 
+    @validator('new_password')
+    def new_password_complexity(cls, v):
+        if not re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", v):
+            raise ValueError('New password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.')
+        return v
 
-class Detection(DetectionRead):
-    """Full detection model used internally."""
-    pass
+# ==============================================================================
+# Community Page & Other Specific Schemas
+# ==============================================================================
 
-
-class Issue(BaseModel):
-    id: int
-    type: str
-    description: Optional[str] = None
-    location: Location
-    severity: str
-    confidence: float
-    urgency_score: float
-    status: str
-    image_url: Optional[str] = None
-    timestamp: datetime
-
-    model_config = {
-        "from_attributes": True  # Enables model conversion from ORM objects
-    }
-
-
-# New schemas for Chennai-specific functionality
-class UserRegistration(BaseModel):
-    firstName: str
-    lastName: str
-    email: str
-    phone: str
-    address: str
-    city: str
-    pincode: str
-    notificationPreferences: dict
-    issueCategories: List[str]
-    agreeToTerms: bool
-    agreeToPrivacy: bool
-    subscribeNewsletter: bool
-
-
-class UserResponse(BaseModel):
-    id: int
-    firstName: str
-    lastName: str
-    email: str
-    city: str
-    pincode: str
-    createdAt: datetime
-
-    model_config = {
-        "from_attributes": True
-    }
-
-
-class CitizenReport(BaseModel):
-    issue_type: str
-    description: Optional[str] = None
-    latitude: float
-    longitude: float
-    address: str
-    city_area: str
-    pincode: str
-    reporter_name: Optional[str] = None
-    reporter_email: Optional[str] = None
-    reporter_phone: Optional[str] = None
-
-
-class CitizenReportResponse(BaseModel):
-    id: int
-    issue_type: str
-    description: Optional[str]
-    location: Location
-    address: str
-    city_area: str
-    pincode: str
-    status: str
-    reported_at: datetime
-    reporter_name: Optional[str]
-    reporter_email: Optional[str]
-
-    model_config = {
-        "from_attributes": True
-    }
-
+class DateRangeEnum(str, Enum):
+    seven_days = "7days"
+    thirty_days = "30days"
+    ninety_days = "90days"
 
 class DashboardMetrics(BaseModel):
     active_issues: int
@@ -120,21 +170,18 @@ class DashboardMetrics(BaseModel):
     ai_detections_today: int
     avg_response_time_hours: float
 
-
 class SystemStatus(BaseModel):
     system_status: str
     ai_detection: str
     gcc_data_sync: str
-    last_check: str
-
+    last_check: datetime
 
 class Alert(BaseModel):
     id: str
     type: str
     message: str
     severity: str
-    timestamp: str
-
+    timestamp: datetime
 
 class Issue(BaseModel):
     id: str
@@ -142,59 +189,41 @@ class Issue(BaseModel):
     location: str
     status: str
     severity: str
-    timestamp: str
+    timestamp: datetime
     description: str
-
+    reporter: str
+    assignedTo: str
+    priority: str
+    estimatedResolutionTime: str
 
 class RecentActivity(BaseModel):
     alerts: List[Alert]
     issues: List[Issue]
 
-
-class VideoFeed(BaseModel):
-    id: str
-    name: str
+class LeaderboardEntry(BaseModel):
+    username: str
     location: str
-    status: str
-    url: str
-    coordinates: Dict[str, float]
+    reportCount: int
+    avatarUrl: Optional[str] = None
+    mostReportedIssueType: Optional[str] = None
+
+class CommunityEvent(BaseModel):
+    title: str
+    date: str # Using str for simplicity, can be date
+    location: str
     description: str
-    last_updated: str
 
-
-class GeoJSONFeature(BaseModel):
-    type: str = "Feature"
-    geometry: Dict[str, Any]
-    properties: Dict[str, Any]
-
-
-class GeoJSONFeatureCollection(BaseModel):
-    type: str = "FeatureCollection"
-    features: List[GeoJSONFeature]
-
-
-class MapIssue(BaseModel):
-    id: str
-    issue_type: str
-    severity: str
-    timestamp: str
-    details: Dict[str, Any]
-
-
-class AnalyticsData(BaseModel):
-    issues_by_type: List[Dict[str, Any]]
-    issues_by_severity: List[Dict[str, Any]]
-    issues_by_status: List[Dict[str, Any]]
-    issues_by_area: List[Dict[str, Any]]
-    resolution_trends: List[Dict[str, Any]]
-    department_performance: List[Dict[str, Any]]
-
+class SpotlightStory(BaseModel):
+    issueTitle: str
+    citizenReporter: str
+    impactStatement: str
+    imageUrl: Optional[str] = None
 
 class AnalyticsSummary(BaseModel):
-    issues_by_type: List[Dict[str, Any]]
-    issues_by_severity: List[Dict[str, Any]]
-    issues_by_status: List[Dict[str, Any]]
-    issues_by_area: List[Dict[str, Any]]
+    issues_by_type: List[Dict[str, int]]
+    issues_by_severity: List[Dict[str, int]]
+    issues_by_status: List[Dict[str, int]]
+    issues_by_area: List[Dict[str, int]]
     resolution_trends: List[Dict[str, Any]]
     department_performance: List[Dict[str, Any]]
     total_issues: int
@@ -202,91 +231,24 @@ class AnalyticsSummary(BaseModel):
     overall_resolution_rate: float
     avg_resolution_time_days: float
 
-
-class CitizenReport(BaseModel):
-    full_name: str
-    contact_number: str
-    locality: str
-    issue_category: str
-    description: str
-
-
-class CitizenReportResponse(BaseModel):
+class MapIssue(BaseModel):
     id: str
-    title: str
-    category: str
-    location: str
+    issueType: str
+    severity: str
     status: str
-    submitted_date: str
-    resolved_date: Optional[str] = None
-    description: str
-    priority: str
-    assigned_to: str
-    reporter_name: str
-    contact_number: str
-    updates: List[Dict[str, str]]
-
-
-class UserRegistration(BaseModel):
-    full_name: str
-    email: str
-    contact_number: str
-    locality: str
-    issue_categories: List[str]
-    terms_accepted: bool
-
-
-class UserResponse(BaseModel):
-    id: int
-    full_name: str
-    email: str
-    contact_number: str
-    locality: str
-    issue_categories: List[str]
-    created_at: datetime
-
-
-class WorkOrder(BaseModel):
-    issue_id: str
-    assigned_to: str
-    priority: str
-    description: str
-    estimated_completion_date: str
-
-
-class WorkOrderResponse(BaseModel):
-    id: int
-    issue_id: str
-    assigned_to: str
-    priority: str
-    status: str
-    description: str
-    created_at: datetime
-    estimated_completion_date: str
-    completed_at: Optional[datetime] = None
-
-# Existing schemas for backward compatibility
-class DetectionBase(BaseModel):
-    type: Literal[
-        'pothole', 'waterlogging', 'garbage', 'streetlights', 
-        'traffic', 'banners', 'drains', 'damaged_property'
-    ]
-    confidence: float = Field(..., ge=0.0, le=1.0)
-    location: Location
+    area: str
     timestamp: datetime
-    image_url: Optional[str] = None
-    severity: Literal['low', 'medium', 'high', 'critical'] = 'medium'
+    description: str
+    reporter: str
+    assignedTo: str
+    priority: str
+    estimatedResolutionTime: str
 
-class DetectionCreate(DetectionBase):
-    pass
+class GeoJSONFeature(BaseModel):
+    type: str
+    geometry: Dict[str, Any]
+    properties: MapIssue
 
-class Detection(DetectionBase):
-    id: int
-    urgency_score: float
-    status: str = 'new'
-    assigned_to: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
+class GeoJSONFeatureCollection(BaseModel):
+    type: str
+    features: List[GeoJSONFeature]

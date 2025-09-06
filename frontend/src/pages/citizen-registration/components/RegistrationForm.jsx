@@ -10,6 +10,7 @@ const RegistrationForm = ({ onSubmit, isLoading }) => {
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
     phone: '',
     address: '',
     city: '',
@@ -188,6 +189,17 @@ const RegistrationForm = ({ onSubmit, isLoading }) => {
         value={formData.email}
         onChange={(e) => handleInputChange('email', e.target.value)}
         error={errors.email}
+        required
+      />
+
+      <Input
+        label="Password"
+        type="password"
+        placeholder="Enter your password"
+        description="Minimum 6 characters"
+        value={formData.password}
+        onChange={(e) => handleInputChange('password', e.target.value)}
+        error={errors.password}
         required
       />
 

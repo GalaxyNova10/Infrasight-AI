@@ -1,32 +1,36 @@
-# .gitignore
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Python virtual environments
-venv/
-*/venv/
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 
-# Python cache & artifacts
-__pycache__/
-*.pyc
-build/
-dist/
+# testing
+/coverage
 
-# Node dependencies
-node_modules/
-*/node_modules/
+# production
+/build
+/dist
 
-# Environment files
-.env
-*/.env
-
-# IDE & Editor folders
-.vscode/
-.idea/
-
-# Media and Model files
-*.mp4
-*.mov
-*.avi
-*.pt
-
-# System files
+# misc
 .DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Docker
+.docker-data/
+open-webui/

@@ -35,18 +35,18 @@ const PublicHeader = () => {
   };
 
   return (
-    <header className="bg-surface border-b border-border">
+    <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo Section */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-royal-red rounded-lg flex items-center justify-center">
                 <Icon name="Zap" size={20} color="white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-semibold text-text-primary">InfraSight AI</span>
-                <span className="text-xs text-text-secondary">Citizen Portal</span>
+                <span className="text-lg font-semibold text-gray-900">InfraSight AI</span>
+                <span className="text-xs text-gray-500">Citizen Portal</span>
               </div>
             </Link>
           </div>
@@ -57,10 +57,10 @@ const PublicHeader = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-smooth ${
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActivePath(item.path)
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-muted'
+                    ? 'bg-royal-red text-white'
+                    : 'text-gray-600 hover:text-royal-red hover:bg-red-50'
                 }`}
               >
                 <Icon name={item.icon} size={16} />
@@ -77,7 +77,7 @@ const PublicHeader = () => {
               </Button>
             </Link>
             <Link to="/citizen-registration">
-              <Button iconName="UserPlus" iconPosition="left">
+              <Button iconName="UserPlus" iconPosition="left" className="bg-royal-red text-white hover:bg-royal-red/90">
                 Register
               </Button>
             </Link>
@@ -96,16 +96,16 @@ const PublicHeader = () => {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-surface border-t border-border animate-slide-in">
+          <div className="md:hidden bg-white border-t border-gray-200 animate-slide-in">
             <nav className="p-4 space-y-2">
               {publicNavItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-smooth ${
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                     isActivePath(item.path)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-muted'
+                      ? 'bg-royal-red text-white'
+                      : 'text-gray-600 hover:text-royal-red hover:bg-red-50'
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -115,14 +115,14 @@ const PublicHeader = () => {
               ))}
               
               {/* Mobile Auth Buttons */}
-              <div className="pt-4 border-t border-border space-y-2">
+              <div className="pt-4 border-t border-gray-200 space-y-2">
                 <Link to="/login" className="block">
                   <Button variant="ghost" fullWidth iconName="LogIn" iconPosition="left">
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/citizen-registration" className="block">
-                  <Button fullWidth iconName="UserPlus" iconPosition="left">
+                  <Button fullWidth iconName="UserPlus" iconPosition="left" className="bg-royal-red text-white hover:bg-royal-red/90">
                     Register
                   </Button>
                 </Link>

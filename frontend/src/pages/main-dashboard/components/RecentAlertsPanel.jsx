@@ -8,8 +8,8 @@ const RecentAlertsPanel = () => {
       id: 1,
       type: 'critical',
       title: 'Water Main Break Detected',
-      description: 'AI system detected potential water main break on Oak Street. Immediate attention required.',
-      location: 'Oak Street Bridge',
+      description: 'AI system detected potential water main break on Anna Salai. Immediate attention required.',
+      location: 'Anna Salai, Chennai',
       timestamp: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
       source: 'AI Detection',
       department: 'Water & Sewer',
@@ -20,8 +20,8 @@ const RecentAlertsPanel = () => {
       id: 2,
       type: 'warning',
       title: 'Multiple Potholes Detected',
-      description: 'Camera system identified 3 new potholes on Main Street requiring repair.',
-      location: 'Main Street & 5th Ave',
+      description: 'Camera system identified 3 new potholes on OMR requiring repair.',
+      location: 'OMR, Chennai',
       timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
       source: 'AI Detection',
       department: 'Public Works',
@@ -33,7 +33,7 @@ const RecentAlertsPanel = () => {
       type: 'info',
       title: 'Streetlight Outage Reported',
       description: 'Citizen reported streetlight outage. AI verification pending.',
-      location: 'Park Avenue Junction',
+      location: 'T. Nagar, Chennai',
       timestamp: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
       source: 'Citizen Report',
       department: 'Electrical',
@@ -44,8 +44,8 @@ const RecentAlertsPanel = () => {
       id: 4,
       type: 'success',
       title: 'Issue Resolved',
-      description: 'Garbage overflow on Broadway has been cleared by maintenance crew.',
-      location: 'Broadway & 42nd Street',
+      description: 'Garbage overflow in Mylapore has been cleared by maintenance crew.',
+      location: 'Mylapore, Chennai',
       timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
       source: 'Field Update',
       department: 'Sanitation',
@@ -56,8 +56,8 @@ const RecentAlertsPanel = () => {
       id: 5,
       type: 'warning',
       title: 'Traffic Signal Malfunction',
-      description: 'AI detected irregular traffic signal patterns at intersection.',
-      location: 'Central Ave & 1st Street',
+      description: 'AI detected irregular traffic signal patterns at intersection in Adyar.',
+      location: 'Adyar, Chennai',
       timestamp: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
       source: 'AI Detection',
       department: 'Traffic',

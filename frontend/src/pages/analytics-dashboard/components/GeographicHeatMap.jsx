@@ -8,8 +8,8 @@ const GeographicHeatMap = () => {
   const districts = [
     {
       id: 1,
-      name: 'Downtown District',
-      coordinates: { lat: 40.7589, lng: -73.9851 },
+      name: 'Anna Nagar',
+      coordinates: { lat: 13.0860, lng: 80.2100 },
       issueCount: 342,
       severity: 'high',
       color: '#DC2626',
@@ -23,8 +23,8 @@ const GeographicHeatMap = () => {
     },
     {
       id: 2,
-      name: 'Residential North',
-      coordinates: { lat: 40.7831, lng: -73.9712 },
+      name: 'T. Nagar',
+      coordinates: { lat: 13.0400, lng: 80.2300 },
       issueCount: 156,
       severity: 'medium',
       color: '#D97706',
@@ -38,8 +38,8 @@ const GeographicHeatMap = () => {
     },
     {
       id: 3,
-      name: 'Industrial Zone',
-      coordinates: { lat: 40.7282, lng: -74.0776 },
+      name: 'Mylapore',
+      coordinates: { lat: 13.0330, lng: 80.2700 },
       issueCount: 234,
       severity: 'high',
       color: '#DC2626',
@@ -53,8 +53,8 @@ const GeographicHeatMap = () => {
     },
     {
       id: 4,
-      name: 'Commercial District',
-      coordinates: { lat: 40.7505, lng: -73.9934 },
+      name: 'Adyar',
+      coordinates: { lat: 13.0080, lng: 80.2500 },
       issueCount: 189,
       severity: 'medium',
       color: '#D97706',
@@ -68,8 +68,8 @@ const GeographicHeatMap = () => {
     },
     {
       id: 5,
-      name: 'Suburban East',
-      coordinates: { lat: 40.7614, lng: -73.9776 },
+      name: 'Velachery',
+      coordinates: { lat: 12.9800, lng: 80.2100 },
       issueCount: 98,
       severity: 'low',
       color: '#059669',
@@ -83,8 +83,8 @@ const GeographicHeatMap = () => {
     },
     {
       id: 6,
-      name: 'Waterfront',
-      coordinates: { lat: 40.7505, lng: -74.0134 },
+      name: 'OMR',
+      coordinates: { lat: 12.9200, lng: 80.2200 },
       issueCount: 123,
       severity: 'medium',
       color: '#D97706',
@@ -117,7 +117,7 @@ const GeographicHeatMap = () => {
   };
 
   return (
-    <div className="bg-surface border border-border rounded-lg p-6">
+    <div className="bg-white rounded-lg p-6 shadow-md">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <Icon name="Map" size={20} className="text-primary" />
@@ -143,7 +143,7 @@ const GeographicHeatMap = () => {
               loading="lazy"
               title="Infrastructure Issues Heat Map"
               referrerPolicy="no-referrer-when-downgrade"
-              src="https://www.google.com/maps?q=40.7589,-73.9851&z=12&output=embed"
+              src="https://www.google.com/maps?q=13.0827,80.2707&z=12&output=embed"
               className="border-0"
             />
             

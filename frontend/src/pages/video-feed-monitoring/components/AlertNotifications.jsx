@@ -13,7 +13,7 @@ const AlertNotifications = ({ onCreateWorkOrder, onEscalate }) => {
       type: 'pothole',
       severity: 'high',
       camera: 'cam_001',
-      location: 'Main Street & Oak Ave',
+      location: 'Anna Salai & Mount Road',
       confidence: 0.87,
       timestamp: new Date(Date.now() - 120000),
       status: 'new',

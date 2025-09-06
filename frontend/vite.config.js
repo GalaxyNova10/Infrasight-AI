@@ -6,6 +6,7 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  appType: 'spa',
   resolve: {
     alias: {
       // This tells Vite that 'pages' means 'src/pages', etc.
@@ -17,5 +18,14 @@ export default defineConfig({
   server: {
     host: true, // Listen on all network interfaces
     port: 3000, // Force Vite to use port 3000
+    hmr: {
+      clientPort: 3000,
+    },
+    proxy: {
+      '/api': {
+        target: 'http://backend:8000', // This should match your backend service name in docker-compose
+        changeOrigin: true,
+      },
+    },
   },
 });

@@ -1,15 +1,20 @@
+import sys
+import os
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
+# Add the backend directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from app.models import Base
-from app.core.config import settings  # ✅ Your custom config
+from app.database import DATABASE_URL
 
 # Alembic Config object
 config = context.config
 
 # Inject DB URL into Alembic
-config.set_main_option("sqlalchemy.url", settings.SQLALCHEMY_DATABASE_URI)
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Setup logging
 if config.config_file_name is not None:

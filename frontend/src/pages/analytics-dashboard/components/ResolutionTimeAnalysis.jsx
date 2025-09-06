@@ -4,55 +4,55 @@ import Icon from '../../../components/AppIcon';
 
 const ResolutionTimeAnalysis = () => {
   const data = [
-    { month: 'Jul 2024', avgTime: 5.2, target: 4.0, resolved: 234 },
-    { month: 'Aug 2024', avgTime: 4.8, target: 4.0, resolved: 267 },
-    { month: 'Sep 2024', avgTime: 4.5, target: 4.0, resolved: 298 },
-    { month: 'Oct 2024', avgTime: 4.1, target: 4.0, resolved: 312 },
-    { month: 'Nov 2024', avgTime: 3.9, target: 4.0, resolved: 289 },
-    { month: 'Dec 2024', avgTime: 4.3, target: 4.0, resolved: 245 },
-    { month: 'Jan 2025', avgTime: 3.8, target: 4.0, resolved: 321 }
+    { month: 'Jan 2025', avgTime: 4.5, target: 3.5, resolved: 350 },
+    { month: 'Feb 2025', avgTime: 4.2, target: 3.5, resolved: 380 },
+    { month: 'Mar 2025', avgTime: 4.0, target: 3.5, resolved: 410 },
+    { month: 'Apr 2025', avgTime: 3.8, target: 3.5, resolved: 430 },
+    { month: 'May 2025', avgTime: 3.6, target: 3.5, resolved: 450 },
+    { month: 'Jun 2025', avgTime: 3.7, target: 3.5, resolved: 420 },
+    { month: 'Jul 2025', avgTime: 3.5, target: 3.5, resolved: 480 }
   ];
 
   const departmentData = [
     {
-      department: 'Water Utilities',
-      avgTime: 2.8,
+      department: 'Water Supply & Sewerage',
+      avgTime: 2.5,
       target: 3.0,
       performance: 'excellent',
       trend: 'improving',
-      resolved: 298
+      resolved: 330
     },
     {
-      department: 'Public Works',
-      avgTime: 3.2,
-      target: 4.0,
+      department: 'Public Works Dept.',
+      avgTime: 3.0,
+      target: 3.5,
       performance: 'good',
       trend: 'stable',
-      resolved: 421
+      resolved: 480
     },
     {
-      department: 'Transportation',
-      avgTime: 4.1,
-      target: 4.0,
+      department: 'Traffic & Roads',
+      avgTime: 3.9,
+      target: 3.5,
       performance: 'fair',
       trend: 'improving',
-      resolved: 567
+      resolved: 610
     },
     {
-      department: 'Parks & Recreation',
-      avgTime: 5.2,
-      target: 5.0,
+      department: 'Parks & Green Spaces',
+      avgTime: 4.8,
+      target: 4.0,
       performance: 'fair',
       trend: 'declining',
-      resolved: 142
+      resolved: 165
     },
     {
-      department: 'Waste Management',
-      avgTime: 1.9,
+      department: 'Solid Waste Management',
+      avgTime: 1.8,
       target: 2.0,
       performance: 'excellent',
       trend: 'stable',
-      resolved: 218
+      resolved: 265
     }
   ];
 
@@ -118,16 +118,16 @@ const ResolutionTimeAnalysis = () => {
   };
 
   return (
-    <div className="bg-surface border border-border rounded-lg p-6">
+    <div className="bg-white rounded-lg p-6 shadow-md">
       <div className="flex items-center space-x-2 mb-6">
         <Icon name="Clock" size={20} className="text-primary" />
-        <h3 className="text-lg font-semibold text-text-primary">Resolution Time Analysis</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Resolution Time Analysis</h3>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Trend Chart */}
         <div>
-          <h4 className="font-medium text-text-primary mb-4">Monthly Trend</h4>
+          <h4 className="font-medium text-gray-800 mb-4">Monthly Trend</h4>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -145,15 +145,15 @@ const ResolutionTimeAnalysis = () => {
                 <Area
                   type="monotone"
                   dataKey="avgTime"
-                  stroke="var(--color-primary)"
-                  fill="var(--color-primary)"
+                  stroke="hsl(var(--primary))"
+                  fill="hsl(var(--primary))"
                   fillOpacity={0.1}
                   strokeWidth={2}
                 />
                 <Area
                   type="monotone"
                   dataKey="target"
-                  stroke="var(--color-warning)"
+                  stroke="hsl(var(--warning))"
                   fill="transparent"
                   strokeWidth={2}
                   strokeDasharray="5 5"
@@ -165,23 +165,23 @@ const ResolutionTimeAnalysis = () => {
           <div className="flex items-center justify-center space-x-6 mt-4">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-primary rounded-full"></div>
-              <span className="text-sm text-text-secondary">Actual Time</span>
+              <span className="text-sm text-gray-600">Actual Time</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-1 bg-warning"></div>
-              <span className="text-sm text-text-secondary">Target Time</span>
+              <div className="w-3 h-1 bg-yellow-500"></div>
+              <span className="text-sm text-gray-600">Target Time</span>
             </div>
           </div>
         </div>
 
         {/* Department Performance */}
         <div>
-          <h4 className="font-medium text-text-primary mb-4">Department Performance</h4>
+          <h4 className="font-medium text-gray-800 mb-4">Department Performance</h4>
           <div className="space-y-3">
             {departmentData.map((dept, index) => (
               <div key={index} className={`p-4 rounded-lg border ${getPerformanceBg(dept.performance)}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <h5 className="font-medium text-text-primary text-sm">{dept.department}</h5>
+                  <h5 className="font-medium text-gray-800 text-sm">{dept.department}</h5>
                   <div className="flex items-center space-x-2">
                     <Icon 
                       name={getTrendIcon(dept.trend)} 
@@ -196,29 +196,29 @@ const ResolutionTimeAnalysis = () => {
                 
                 <div className="flex items-center justify-between text-sm">
                   <div>
-                    <span className="text-text-secondary">Avg: </span>
-                    <span className="font-semibold text-text-primary">{dept.avgTime} days</span>
+                    <span className="text-gray-600">Avg: </span>
+                    <span className="font-semibold text-gray-800">{dept.avgTime} days</span>
                   </div>
                   <div>
-                    <span className="text-text-secondary">Target: </span>
-                    <span className="font-medium text-warning">{dept.target} days</span>
+                    <span className="text-gray-600">Target: </span>
+                    <span className="font-medium text-yellow-600">{dept.target} days</span>
                   </div>
                   <div>
-                    <span className="text-text-secondary">Resolved: </span>
-                    <span className="font-medium text-success">{dept.resolved}</span>
+                    <span className="text-gray-600">Resolved: </span>
+                    <span className="font-medium text-green-600">{dept.resolved}</span>
                   </div>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="mt-3">
-                  <div className="flex items-center justify-between text-xs text-text-secondary mb-1">
+                  <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                     <span>Performance vs Target</span>
                     <span>{dept.avgTime <= dept.target ? 'On Target' : 'Above Target'}</span>
                   </div>
                   <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
                       className={`h-full rounded-full ${
-                        dept.avgTime <= dept.target ? 'bg-success' : 'bg-warning'
+                        dept.avgTime <= dept.target ? 'bg-green-500' : 'bg-yellow-500'
                       }`}
                       style={{ 
                         width: `${Math.min((dept.target / dept.avgTime) * 100, 100)}%` 
@@ -234,25 +234,25 @@ const ResolutionTimeAnalysis = () => {
 
       {/* Summary Stats */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="text-center p-4 bg-blue-50 rounded-lg">
+        <div className="text-center p-4 bg-gray-100 rounded-lg">
           <Icon name="Target" size={24} className="text-primary mx-auto mb-2" />
-          <p className="text-lg font-bold text-text-primary">3.8 days</p>
-          <p className="text-sm text-text-secondary">Current Average</p>
+          <p className="text-lg font-bold text-gray-800">3.8 days</p>
+          <p className="text-sm text-gray-600">Current Average</p>
         </div>
-        <div className="text-center p-4 bg-green-50 rounded-lg">
-          <Icon name="CheckCircle" size={24} className="text-success mx-auto mb-2" />
-          <p className="text-lg font-bold text-text-primary">78%</p>
-          <p className="text-sm text-text-secondary">Within Target</p>
+        <div className="text-center p-4 bg-gray-100 rounded-lg">
+          <Icon name="CheckCircle" size={24} className="text-green-500 mx-auto mb-2" />
+          <p className="text-lg font-bold text-gray-800">78%</p>
+          <p className="text-sm text-gray-600">Within Target</p>
         </div>
-        <div className="text-center p-4 bg-amber-50 rounded-lg">
-          <Icon name="TrendingUp" size={24} className="text-warning mx-auto mb-2" />
-          <p className="text-lg font-bold text-text-primary">-15%</p>
-          <p className="text-sm text-text-secondary">Improvement</p>
+        <div className="text-center p-4 bg-gray-100 rounded-lg">
+          <Icon name="TrendingUp" size={24} className="text-yellow-500 mx-auto mb-2" />
+          <p className="text-lg font-bold text-gray-800">-15%</p>
+          <p className="text-sm text-gray-600">Improvement</p>
         </div>
-        <div className="text-center p-4 bg-purple-50 rounded-lg">
+        <div className="text-center p-4 bg-gray-100 rounded-lg">
           <Icon name="Award" size={24} className="text-purple-600 mx-auto mb-2" />
-          <p className="text-lg font-bold text-text-primary">Water Utilities</p>
-          <p className="text-sm text-text-secondary">Best Performer</p>
+          <p className="text-lg font-bold text-gray-800">Water Utilities</p>
+          <p className="text-sm text-gray-600">Best Performer</p>
         </div>
       </div>
     </div>

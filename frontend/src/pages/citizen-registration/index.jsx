@@ -1,43 +1,53 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import { Link, useNavigate } from 'react-router-dom';
 import PublicHeader from './components/PublicHeader';
 import RegistrationForm from './components/RegistrationForm';
 import RegistrationBenefits from './components/RegistrationBenefits';
 import SuccessModal from './components/SuccessModal';
 import Icon from '../../components/AppIcon';
+import { register } from '../../services/api'; // <-- 1. Import the real API function
 
 const CitizenRegistration = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
+  const [error, setError] = useState(''); // <-- 2. Added state for error handling
+  const navigate = useNavigate(); // <-- 3. Added navigate for redirection
 
+  // --- 4. Updated function to call the real backend API ---
   const handleRegistrationSubmit = async (formData) => {
     setIsLoading(true);
+    setError('');
     
     try {
-      // Mock API call - simulate registration process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Create the user data object for the API
+      const userData = {
+        full_name: formData.firstName + ' ' + formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        role: 'citizen' // Ensure the role is set correctly
+      };
       
-      console.log('Registration data:', formData);
+      // Call the actual register function from our api.js service
+      await register(userData);
       
-      // Store registered email for success modal
       setRegisteredEmail(formData.email);
-      
-      // Show success modal
       setShowSuccessModal(true);
       
-    } catch (error) {
-      console.error('Registration failed:', error);
-      // Handle error - in real app, show error message
+    } catch (err) {
+      // Set the error message from the backend response
+      setError(err.response?.data?.detail || 'Registration failed. Please try again.');
+      console.error('Registration failed:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // --- 5. Updated function to redirect after success ---
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
-    // In real app, might redirect to login or home page
+    navigate('/login'); // Redirect to the login page
   };
 
   return (
@@ -49,8 +59,7 @@ const CitizenRegistration = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        {/* Public Header */}
-        <PublicHeader />
+        
 
         {/* Main Content */}
         <main className="pt-16">
@@ -97,10 +106,12 @@ const CitizenRegistration = () => {
                         Join thousands of Chennai citizens making their community better
                       </p>
                     </div>
-
+                    
+                    {/* Pass the error state to the form component */}
                     <RegistrationForm 
                       onSubmit={handleRegistrationSubmit}
                       isLoading={isLoading}
+                      error={error}
                     />
 
                     {/* Sign In Link */}

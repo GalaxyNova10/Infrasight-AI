@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import Icon from '../../components/AppIcon';
 
@@ -98,39 +98,13 @@ const PublicDataPage = () => {
   return (
     <>
       <Helmet>
-        <title>Public Data - Chennai Civic Watch</title>
+        <title>Public Data - InfraSight AI</title>
         <meta name="description" content="Public data and statistics about infrastructure issues and resolutions in Chennai." />
       </Helmet>
 
       <div className="min-h-screen bg-background">
         {/* Navigation Header */}
-        <header className="bg-surface border-b border-border">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <Link to="/" className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <Icon name="Zap" size={20} color="white" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-lg font-semibold text-text-primary">Chennai Civic Watch</span>
-                  <span className="text-xs text-text-secondary">Chennai Municipal Infrastructure</span>
-                </div>
-              </Link>
-              
-              <div className="flex items-center space-x-4">
-                <Link to="/report" className="text-text-secondary hover:text-primary transition-colors">
-                  Report Issue
-                </Link>
-                <Link to="/my-reports" className="text-text-secondary hover:text-primary transition-colors">
-                  My Reports
-                </Link>
-                <Link to="/login" className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
-                  Official Login
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
+        
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

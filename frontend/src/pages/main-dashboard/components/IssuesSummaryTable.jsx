@@ -13,65 +13,65 @@ const IssuesSummaryTable = () => {
       id: 'ISS-001',
       type: 'pothole',
       title: 'Large Pothole on Anna Salai',
-      location: 'Anna Salai & Mount Road',
+      location: 'Anna Salai, Chennai',
       severity: 'high',
       status: 'pending',
       department: 'Greater Chennai Corporation',
       reportedBy: 'AI Detection',
       timestamp: new Date(Date.now() - 2 * 60 * 1000),
-      assignedTo: 'Rajesh Kumar',
+      assignedTo: { name: 'Rajesh Kumar', gender: 'male' },
       estimatedTime: '2 hours'
     },
     {
       id: 'ISS-002',
       type: 'waterlogging',
       title: 'Water Main Break',
-      location: 'Adyar Bridge Road',
+      location: 'Adyar Bridge Road, Chennai',
       severity: 'critical',
       status: 'in_progress',
       department: 'GCC Water Department',
       reportedBy: 'AI Detection',
       timestamp: new Date(Date.now() - 5 * 60 * 1000),
-      assignedTo: 'Emergency Team',
+      assignedTo: { name: 'Emergency Team', gender: 'female' },
       estimatedTime: '4 hours'
     },
     {
       id: 'ISS-003',
       type: 'streetlight',
       title: 'Streetlight Outage',
-      location: 'Santhome High Road',
+      location: 'Santhome High Road, Chennai',
       severity: 'medium',
       status: 'assigned',
       department: 'GCC Electrical',
       reportedBy: 'Citizen Report',
       timestamp: new Date(Date.now() - 15 * 60 * 1000),
-      assignedTo: 'Mohan Kumar',
+      assignedTo: { name: 'Mohan Kumar', gender: 'male' },
       estimatedTime: '1 hour'
     },
     {
       id: 'ISS-004',
       type: 'garbage_overflow',
       title: 'Garbage Bin Overflow',
-      location: 'Velachery Main Road',
+      location: 'Velachery Main Road, Chennai',
       severity: 'medium',
       status: 'resolved',
       department: 'GCC Sanitation',
       reportedBy: 'AI Detection',
       timestamp: new Date(Date.now() - 30 * 60 * 1000),
-      assignedTo: 'Priya Sharma',
+      assignedTo: { name: 'Priya Sharma', gender: 'female' },
       estimatedTime: 'Completed'
     },
     {
       id: 'ISS-005',
       type: 'pothole',
       title: 'Road Surface Damage',
-      location: 'OMR Sholinganallur',
+      location: 'OMR Sholinganallur, Chennai',
       severity: 'low',
       status: 'pending',
       department: 'Greater Chennai Corporation',
       reportedBy: 'Citizen Report',
       timestamp: new Date(Date.now() - 45 * 60 * 1000),
-      assignedTo: 'Unassigned',
+      assignedTo: { name: 'Unassigned', gender: 'male' },
       estimatedTime: '3 hours'
     }
   ];
@@ -307,7 +307,12 @@ const IssuesSummaryTable = () => {
                   </span>
                 </td>
                 <td className="p-3">
-                  <span className="text-sm text-text-primary">{issue.assignedTo}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-8 h-8 rounded-full ${issue.assignedTo.gender === 'male' ? 'bg-blue-200' : 'bg-pink-200'} flex items-center justify-center`}>
+                      <Icon name="User" size={16} />
+                    </div>
+                    <span className="text-sm text-text-primary">{issue.assignedTo.name}</span>
+                  </div>
                 </td>
                 <td className="p-3">
                   <div className="text-sm">

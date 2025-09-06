@@ -4,7 +4,7 @@ import random
 import csv
 import io
 from typing import List, Dict, Any
-from ..schemas import AnalyticsData, AnalyticsSummary
+from ..schemas import AnalyticsSummary
 
 router = APIRouter(prefix="/api/v1/analytics", tags=["analytics"])
 
@@ -88,7 +88,7 @@ async def get_analytics_summary():
             "resolved": resolved,
             "resolution_rate": round((resolved / reported) * 100, 1)
         })
-    resolution_trends.reverse()  # Most recent first
+    resolution_trends.reverse()
     
     # Generate department performance data
     gcc_departments = [
@@ -214,4 +214,4 @@ async def get_analytics_trends():
         "total_reported": sum([day["reported"] for day in trends]),
         "total_resolved": sum([day["resolved"] for day in trends]),
         "total_ai_detections": sum([day["ai_detections"] for day in trends])
-    } 
+    }

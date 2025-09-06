@@ -1,27 +1,17 @@
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
-import { HelpCircle } from 'lucide-react';
 
-function Icon({
-    name,
-    size = 24,
-    color = "currentColor",
-    className = "",
-    strokeWidth = 2,
-    ...props
-}) {
-    const IconComponent = LucideIcons[name];
+const Icon = ({ name, color, size, strokeWidth, className }) => {
+  const LucideIcon = LucideIcons[name];
 
-    if (!IconComponent) {
-        return <HelpCircle size={size} color="gray" strokeWidth={strokeWidth} className={className} {...props} />;
-    }
+  if (!LucideIcon) {
+    // If the icon name is not found, log a warning and show a fallback icon.
+    console.warn(`Icon "${name}" not found in lucide-react.`);
+    const FallbackIcon = LucideIcons['HelpCircle']; // A default 'question mark' icon
+    return <FallbackIcon color="gray" size={size} strokeWidth={strokeWidth} className={className} />;
+  }
 
-    return <IconComponent
-        size={size}
-        color={color}
-        strokeWidth={strokeWidth}
-        className={className}
-        {...props}
-    />;
-}
+  return <LucideIcon color={color} size={size} strokeWidth={strokeWidth} className={className} />;
+};
+
 export default Icon;

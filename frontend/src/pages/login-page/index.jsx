@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
+
+// Import our custom hooks and services
+import { useAuth } from '../../context/AuthContext';
+import { login, loginWithGoogle } from '../../services/api';
 import Icon from '../../components/AppIcon';
 
 const LoginPage = () => {
@@ -11,6 +17,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { loginAction } = useAuth(); // Get the login action from our global context
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -20,38 +27,64 @@ const LoginPage = () => {
     if (error) setError('');
   };
 
-  const handleSubmit = async (e) => {
+  // A centralized function to handle the post-login logic
+  const handleLoginSuccess = (token) => {
+    loginAction(token); // Update global state
+    const decodedToken = jwtDecode(token);
+    const userRole = decodedToken.role;
+    console.log('Decoded Token:', decodedToken);
+    console.log('User Role:', userRole);
+
+    if (userRole === 'admin' || userRole.includes('official')) {
+      navigate('/dashboard'); // Redirect officials to the dashboard
+    } else {
+      navigate('/'); // Redirect citizens to the home page
+    }
+  };
+
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    console.log('Submitting login form with:', formData);
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // For now, just redirect to dashboard
-      // In real implementation, check response and handle authentication
-      navigate('/dashboard');
-      
+      const data = await login(formData.email, formData.password);
+      console.log('Login successful, received data:', data);
+      handleLoginSuccess(data.access_token);
     } catch (err) {
-      setError('Login failed. Please check your credentials and try again.');
+      console.error('Login error:', err);
+      console.error('Request details:', err.request);
+      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      // Send Google's token to our backend to get our app's token
+      const data = await loginWithGoogle(credentialResponse.credential);
+      handleLoginSuccess(data.access_token);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Google login failed. Please try again.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google sign-in failed. Please try again.');
+  };
+
   return (
     <>
       <Helmet>
-        <title>Official Login - Chennai Civic Watch</title>
-        <meta name="description" content="Official login portal for Chennai Civic Watch - Greater Chennai Corporation officials and staff." />
+        <title>Login - InfraSight AI</title>
+        <meta name="description" content="Login portal for InfraSight AI - Greater Chennai Corporation officials and citizens." />
       </Helmet>
 
       <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -63,20 +96,36 @@ const LoginPage = () => {
                 <Icon name="Zap" size={24} color="white" />
               </div>
               <div className="text-left">
-                <h1 className="text-2xl font-semibold text-text-primary">Chennai Civic Watch</h1>
+                <h1 className="text-2xl font-semibold text-text-primary">InfraSight AI</h1>
                 <p className="text-sm text-text-secondary">Official Portal</p>
               </div>
             </Link>
             
             <h2 className="text-3xl font-bold text-text-primary mb-2">Welcome Back</h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+            Or {' '}
+            <Link to="/register" className="font-medium text-primary hover:text-primary-dark">
+              register for a citizen account
+            </Link>
+          </p>
             <p className="text-text-secondary">
-              Sign in to access the Chennai Civic Watch management dashboard
+              Sign in to access the InfraSight AI platform
             </p>
           </div>
 
-          {/* Login Form */}
+          {/* Login Methods */}
           <div className="bg-surface border border-border rounded-lg shadow-elevation-2 p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex justify-center">
+              <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} theme="filled_blue" width="300px" />
+            </div>
+            
+            <div className="relative flex py-5 items-center">
+              <div className="flex-grow border-t border-gray-300"></div>
+              <span className="flex-shrink mx-4 text-gray-500">Or sign in with email</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+            </div>
+
+            <form onSubmit={handleEmailSubmit} className="space-y-6">
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2">
@@ -155,14 +204,25 @@ const LoginPage = () => {
                 )}
               </button>
             </form>
+
+            {/* Demo Credentials Info */}
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h4 className="text-sm font-medium text-text-primary mb-2">Demo Credentials:</h4>
+              <div className="text-xs text-text-secondary space-y-1">
+                <p><strong>Admin:</strong> admin@cityworks.gov / Admin123!</p>
+                <p><strong>Manager:</strong> manager@cityworks.gov / Manager123!</p>
+                <p><strong>Worker:</strong> worker@cityworks.gov / Worker123!</p>
+                <p><strong>Citizen:</strong> citizen@email.com / Citizen123!</p>
+              </div>
+            </div>
           </div>
 
           {/* Footer */}
           <div className="text-center">
             <p className="text-sm text-text-secondary">
               Need help? Contact{' '}
-              <a href="mailto:support@chennaicivicwatch.gov.in" className="text-primary hover:text-primary/80 transition-colors">
-                support@chennaicivicwatch.gov.in
+              <a href="mailto:support@infrasightai.gov.in" className="text-primary hover:text-primary/80 transition-colors">
+                support@infrasightai.gov.in
               </a>
             </p>
           </div>
@@ -179,4 +239,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

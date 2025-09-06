@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../../components/ui/Header';
-import Breadcrumb from '../../components/ui/Breadcrumb';
+
 import VideoFeedGrid from './components/VideoFeedGrid';
 import FeedDirectory from './components/FeedDirectory';
 import ControlPanel from './components/ControlPanel';
@@ -19,6 +18,7 @@ const VideoFeedMonitoring = () => {
   const [isDetectionModalOpen, setIsDetectionModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [newAlerts, setNewAlerts] = useState([]); // New state for alerts
 
   // Update current time every second
   useEffect(() => {
@@ -55,6 +55,14 @@ const VideoFeedMonitoring = () => {
     setSelectedDetection(detection);
     setSelectedCamera(camera);
     setIsDetectionModalOpen(true);
+  };
+
+  const handleNewDetection = (alertData) => {
+    // Add new alert to state
+    setNewAlerts(prevAlerts => [...prevAlerts, alertData]);
+    console.log('New high-confidence detection:', alertData);
+    // Optionally, play an audible alert
+    // new Audio('/path/to/alert.mp3').play();
   };
 
   const handleTimeChange = (newTime) => {
@@ -116,40 +124,8 @@ const VideoFeedMonitoring = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="pt-16">
+      <main>
         <div className="max-w-full mx-auto p-6">
-          <Breadcrumb />
-          
-          {/* Page Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-text-primary">Chennai Video Feed Monitoring</h1>
-              <p className="text-text-secondary mt-1">
-                Monitor live camera feeds and AI detection results for Greater Chennai Corporation infrastructure
-              </p>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 text-sm text-text-secondary">
-                <Icon name="Clock" size={16} />
-                <span>{currentTime.toLocaleTimeString()}</span>
-              </div>
-              <Button
-                variant="outline"
-                iconName={isFullscreen ? "Minimize2" : "Maximize2"}
-                iconPosition="left"
-                onClick={toggleFullscreen}
-              >
-                {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-              </Button>
-              <Button variant="outline" iconName="Settings" iconPosition="left">
-                Configure
-              </Button>
-            </div>
-          </div>
-
           {/* Main Content Grid */}
           <div className="grid grid-cols-12 gap-6 h-[calc(100vh-200px)]">
             {/* Left Sidebar - Feed Directory */}
@@ -169,8 +145,9 @@ const VideoFeedMonitoring = () => {
                 onFeedSelect={handleFeedSelect}
                 onDetectionClick={handleDetectionClick}
                 detectionSensitivity={detectionSensitivity}
+                onNewDetection={handleNewDetection} // Pass new detection handler
               />
-              
+
               <TimelineScrubber
                 onTimeChange={handleTimeChange}
                 onDetectionSelect={handleDetectionSelect}
@@ -194,6 +171,7 @@ const VideoFeedMonitoring = () => {
 
       {/* Alert Notifications Overlay */}
       <AlertNotifications
+        alerts={newAlerts} // Pass alerts to the component
         onCreateWorkOrder={handleCreateWorkOrder}
         onEscalate={handleEscalate}
       />

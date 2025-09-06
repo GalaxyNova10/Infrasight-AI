@@ -7,48 +7,48 @@ const PredictiveInsights = () => {
     {
       id: 1,
       type: 'maintenance',
-      title: 'Bridge #47 Maintenance Required',
-      description: 'AI analysis indicates structural stress patterns suggesting maintenance needed within 30 days',
+      title: 'Flyover #12 Maintenance Required',
+      description: 'AI analysis indicates structural stress patterns suggesting maintenance needed within 30 days on Kathipara Flyover',
       priority: 'high',
       confidence: 87,
       estimatedDate: '2025-02-28',
-      location: 'Downtown District',
+      location: 'Kathipara, Chennai',
       icon: 'Bridge',
       actionRequired: 'Schedule inspection and maintenance crew'
     },
     {
       id: 2,
       type: 'seasonal',
-      title: 'Increased Pothole Formation Expected',
-      description: 'Weather patterns and historical data suggest 40% increase in pothole formation next month',
+      title: 'Increased Waterlogging Expected',
+      description: 'Monsoon patterns and historical data suggest 40% increase in waterlogging next month',
       priority: 'medium',
       confidence: 92,
       estimatedDate: '2025-03-15',
-      location: 'Citywide',
-      icon: 'CloudSnow',
-      actionRequired: 'Prepare additional asphalt and crew scheduling'
+      location: 'Citywide, Chennai',
+      icon: 'CloudRain',
+      actionRequired: 'Prepare additional drainage and crew scheduling'
     },
     {
       id: 3,
       type: 'equipment',
-      title: 'Water Main Failure Risk',
-      description: 'Pressure monitoring indicates potential failure in aging infrastructure on Oak Street',
+      title: 'Water Pumping Station Failure Risk',
+      description: 'Pressure monitoring indicates potential failure in aging infrastructure at Chembarambakkam Pumping Station',
       priority: 'critical',
       confidence: 78,
       estimatedDate: '2025-02-15',
-      location: 'Residential North',
+      location: 'Chembarambakkam, Chennai',
       icon: 'Droplets',
       actionRequired: 'Immediate inspection and replacement planning'
     },
     {
       id: 4,
       type: 'traffic',
-      title: 'Traffic Light System Optimization',
-      description: 'AI suggests timing adjustments could reduce intersection issues by 25%',
+      title: 'Traffic Signal System Optimization',
+      description: 'AI suggests timing adjustments could reduce intersection issues by 25% at Anna Salai junction',
       priority: 'low',
       confidence: 94,
       estimatedDate: '2025-02-10',
-      location: 'Commercial District',
+      location: 'Anna Salai, Chennai',
       icon: 'Traffic',
       actionRequired: 'Review and implement timing adjustments'
     }
@@ -94,11 +94,11 @@ const PredictiveInsights = () => {
   };
 
   return (
-    <div className="bg-surface border border-border rounded-lg p-6">
+    <div className="bg-white rounded-lg p-6 shadow-md">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <Icon name="Brain" size={20} className="text-primary" />
-          <h3 className="text-lg font-semibold text-text-primary">Predictive Insights</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Predictive Insights</h3>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm" iconName="Settings" iconSize={16}>

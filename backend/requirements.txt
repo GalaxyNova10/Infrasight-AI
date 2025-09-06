@@ -1,14 +1,36 @@
+# Core Web Framework
 fastapi
 uvicorn[standard]
+
+# Database
 sqlalchemy
+alembic
 asyncpg
 psycopg2-binary
-python-dotenv
-pydantic
-requests
 geoalchemy2[shapely]
+
+# AI / Machine Learning
+ultralytics
+opencv-python
+spacy
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
+
+# Authentication & Security
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==3.2.0
+google-auth
+
+# Utilities & APIs
+pydantic
+pydantic-settings
+python-dotenv
+requests
 twilio
 python-multipart
 email-validator
-python-jose[cryptography]
-passlib[bcrypt]
+httpx
+
+# Testing
+pytest
+pytest-asyncio

@@ -1,23 +1,26 @@
 services:
   backend:
     build:
-      context: ./backend
+      context: "./backend"
       dockerfile: Dockerfile
     container_name: backend
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: sh -c "python scripts/seed.py && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app"
     volumes:
-      - ./backend:/app
+      - "./backend:/app"
     ports:
       - "8000:8000"
     environment:
-      # Use component variables which are read by your database.py
       - DB_HOST=db
-      - DB_USER=infrasight
-      - DB_PASSWORD=mysecretpassword
-      - DB_NAME=infrasight_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=infrasight
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - SECRET_KEY=${SECRET_KEY}
+      - FRONTEND_URL=http://localhost:3000
+      - RESET_PASSWORD_URL=http://localhost:3000/reset-password
     depends_on:
       db:
-        condition: service_healthy # Waits for the db healthcheck to pass
+        condition: service_healthy
     networks:
       - appnet
 
@@ -25,29 +28,19 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: builder
     container_name: frontend
-    ports:
-      - "3000:3000"
+    command: npm run dev
+    working_dir: /app
     volumes:
       - ./frontend:/app
-      - /app/node_modules  # This prevents the local node_modules from overwriting the container's
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
     environment:
-      # This helps Vite's hot-reloading work correctly inside Docker
       - WATCHPACK_POLLING=true
     stdin_open: true
     tty: true
-    networks:
-      - appnet
-
-  cv_processor:
-    build:
-      context: ./cv_processor
-      dockerfile: Dockerfile
-    container_name: cv_processor
-    # This command keeps the container running so you can exec into it
-    command: tail -f /dev/null
-    depends_on:
-      - backend
     networks:
       - appnet
 
@@ -56,9 +49,11 @@ services:
     restart: always
     container_name: db
     environment:
-      - POSTGRES_USER=infrasight
-      - POSTGRES_PASSWORD=mysecretpassword
-      - POSTGRES_DB=infrasight_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=infrasight
+      - DB_USER=postgres
+      - DB_NAME=infrasight
     ports:
       - "5432:5432"
     volumes:
@@ -66,13 +61,14 @@ services:
     networks:
       - appnet
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U infrasight -d infrasight_db"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
   postgres_data:
+  frontend_node_modules:
 
 networks:
   appnet:

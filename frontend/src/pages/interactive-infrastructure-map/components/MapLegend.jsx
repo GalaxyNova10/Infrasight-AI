@@ -10,33 +10,41 @@ const MapLegend = ({ isVisible, onToggle }) => {
       type: 'potholes', 
       label: 'Potholes', 
       color: 'bg-red-500', 
-      icon: 'AlertTriangle',
-      count: 127,
+      icon: 'Construction',
+      count: 150,
       description: 'Road surface damage and holes'
     },
     { 
-      type: 'leaks', 
+      type: 'water-leaks', 
       label: 'Water Leaks', 
       color: 'bg-blue-500', 
       icon: 'Droplets',
-      count: 43,
+      count: 75,
       description: 'Water main breaks and pipe leaks'
     },
     { 
-      type: 'lighting', 
-      label: 'Street Lighting', 
+      type: 'streetlights', 
+      label: 'Streetlight Issues', 
       color: 'bg-yellow-500', 
       icon: 'Lightbulb',
-      count: 89,
+      count: 120,
       description: 'Broken or malfunctioning street lights'
     },
     { 
-      type: 'waste', 
-      label: 'Waste Management', 
+      type: 'garbage-overflow', 
+      label: 'Garbage Overflow', 
       color: 'bg-green-500', 
       icon: 'Trash2',
-      count: 56,
+      count: 90,
       description: 'Overflowing bins and waste issues'
+    },
+    { 
+      type: 'road-damage', 
+      label: 'Road Damage', 
+      color: 'bg-purple-500', 
+      icon: 'AlertTriangle',
+      count: 110,
+      description: 'Damaged roads and infrastructure'
     }
   ];
 
@@ -70,11 +78,11 @@ const MapLegend = ({ isVisible, onToggle }) => {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 z-1000 bg-surface border border-border rounded-lg shadow-elevation-3 max-w-xs">
+    <div className="fixed bottom-4 left-4 z-1000 bg-white rounded-lg shadow-lg max-w-xs">
       {/* Header */}
-      <div className="p-3 border-b border-border">
+      <div className="p-3 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-text-primary flex items-center space-x-2">
+          <h3 className="font-semibold text-gray-800 flex items-center space-x-2">
             <Icon name="Info" size={16} />
             <span>Map Legend</span>
           </h3>
@@ -103,16 +111,16 @@ const MapLegend = ({ isVisible, onToggle }) => {
         <div className="p-3 space-y-4">
           {/* Issue Types */}
           <div>
-            <h4 className="text-sm font-medium text-text-primary mb-2">Issue Types</h4>
+            <h4 className="text-sm font-medium text-gray-800 mb-2">Issue Types</h4>
             <div className="space-y-2">
               {issueTypes.map((item) => (
                 <div key={item.type} className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2 flex-1">
                     <div className={`w-3 h-3 rounded-full ${item.color}`} />
-                    <Icon name={item.icon} size={14} className="text-text-secondary" />
-                    <span className="text-sm text-text-primary">{item.label}</span>
+                    <Icon name={item.icon} size={14} className="text-gray-600" />
+                    <span className="text-sm text-gray-800">{item.label}</span>
                   </div>
-                  <span className="text-xs text-text-secondary bg-muted px-2 py-1 rounded">
+                  <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
                     {item.count}
                   </span>
                 </div>
@@ -122,23 +130,23 @@ const MapLegend = ({ isVisible, onToggle }) => {
 
           {/* Severity Levels */}
           <div>
-            <h4 className="text-sm font-medium text-text-primary mb-2">Severity Levels</h4>
+            <h4 className="text-sm font-medium text-gray-800 mb-2">Severity Levels</h4>
             <div className="space-y-2">
               {severityLevels.map((item) => (
                 <div key={item.level} className="flex items-center space-x-2">
                   <div className={`${item.size} rounded-full ${item.color}`} />
-                  <span className="text-sm text-text-primary capitalize">{item.label}</span>
+                  <span className="text-sm text-gray-800 capitalize">{item.label}</span>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-text-secondary mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               Marker size indicates severity level
             </p>
           </div>
 
           {/* Cluster Sizes */}
           <div>
-            <h4 className="text-sm font-medium text-text-primary mb-2">Cluster Markers</h4>
+            <h4 className="text-sm font-medium text-gray-800 mb-2">Cluster Markers</h4>
             <div className="space-y-2">
               {clusterSizes.map((item) => (
                 <div key={item.range} className="flex items-center space-x-2">
@@ -147,34 +155,34 @@ const MapLegend = ({ isVisible, onToggle }) => {
                       {item.range === '11+' ? '11' : item.range.split('-')[1]}
                     </span>
                   </div>
-                  <span className="text-sm text-text-primary">{item.label}</span>
+                  <span className="text-sm text-gray-800">{item.label}</span>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-text-secondary mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               Click clusters to zoom in and expand
             </p>
           </div>
 
           {/* Heat Map */}
           <div>
-            <h4 className="text-sm font-medium text-text-primary mb-2">Heat Map</h4>
+            <h4 className="text-sm font-medium text-gray-800 mb-2">Heat Map</h4>
             <div className="flex items-center space-x-2">
               <div className="flex-1 h-3 bg-gradient-to-r from-green-400 via-yellow-400 via-orange-400 to-red-500 rounded" />
             </div>
-            <div className="flex justify-between text-xs text-text-secondary mt-1">
+            <div className="flex justify-between text-xs text-gray-600 mt-1">
               <span>Low Density</span>
               <span>High Density</span>
             </div>
           </div>
 
           {/* Additional Info */}
-          <div className="pt-2 border-t border-border">
-            <div className="flex items-center space-x-2 text-xs text-text-secondary">
+          <div className="pt-2 border-t border-gray-200">
+            <div className="flex items-center space-x-2 text-xs text-gray-600">
               <Icon name="Clock" size={12} />
               <span>Last updated: {new Date().toLocaleTimeString()}</span>
             </div>
-            <div className="flex items-center space-x-2 text-xs text-text-secondary mt-1">
+            <div className="flex items-center space-x-2 text-xs text-gray-600 mt-1">
               <Icon name="MapPin" size={12} />
               <span>Total issues: {issueTypes.reduce((sum, item) => sum + item.count, 0)}</span>
             </div>

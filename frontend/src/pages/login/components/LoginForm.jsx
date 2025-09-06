@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import Icon from '../../../components/AppIcon';
+import { useAuth } from '../../../context/AuthContext';
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -20,10 +22,10 @@ const LoginForm = () => {
 
   // Mock credentials for different user types
   const mockCredentials = {
-    admin: { email: 'admin@cityworks.gov', password: 'Admin123!', requiresMFA: true },
-    manager: { email: 'manager@cityworks.gov', password: 'Manager123!', requiresMFA: true },
-    worker: { email: 'worker@cityworks.gov', password: 'Worker123!', requiresMFA: false },
-    citizen: { email: 'citizen@email.com', password: 'Citizen123!', requiresMFA: false }
+    admin: { email: 'admin@cityworks.gov', password: 'Admin123!', requiresMFA: true, role: 'admin' },
+    manager: { email: 'manager@cityworks.gov', password: 'Manager123!', requiresMFA: true, role: 'manager' },
+    worker: { email: 'worker@cityworks.gov', password: 'Worker123!', requiresMFA: false, role: 'worker' },
+    citizen: { email: 'citizen@email.com', password: 'Citizen123!', requiresMFA: false, role: 'citizen' }
   };
 
   const handleInputChange = (e) => {
@@ -104,6 +106,7 @@ const LoginForm = () => {
     }
     
     // Successful login - redirect to dashboard
+    login(validCredential);
     setIsLoading(false);
     navigate('/main-dashboard');
   };

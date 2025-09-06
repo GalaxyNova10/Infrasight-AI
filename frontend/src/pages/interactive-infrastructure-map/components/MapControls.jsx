@@ -30,10 +30,10 @@ const MapControls = ({
   return (
     <div className="fixed right-4 top-20 z-1000 space-y-3">
       {/* Map View Toggle */}
-      <div className="bg-surface border border-border rounded-lg shadow-elevation-2 p-2">
+      <div className="bg-white rounded-lg shadow-md p-2">
         <div className="flex flex-col space-y-1">
           <Button
-            variant={mapView === 'street' ? 'default' : 'ghost'}
+            variant={mapView === 'street' ? 'primary' : 'ghost'}
             size="sm"
             onClick={() => onMapViewChange('street')}
             className="justify-start"
@@ -42,7 +42,7 @@ const MapControls = ({
             Street
           </Button>
           <Button
-            variant={mapView === 'satellite' ? 'default' : 'ghost'}
+            variant={mapView === 'satellite' ? 'primary' : 'ghost'}
             size="sm"
             onClick={() => onMapViewChange('satellite')}
             className="justify-start"
@@ -54,7 +54,7 @@ const MapControls = ({
       </div>
 
       {/* Zoom Controls */}
-      <div className="bg-surface border border-border rounded-lg shadow-elevation-2 p-2">
+      <div className="bg-white rounded-lg shadow-md p-2">
         <div className="flex flex-col space-y-1">
           <Button
             variant="ghost"
@@ -84,9 +84,9 @@ const MapControls = ({
       </div>
 
       {/* Heat Map Toggle */}
-      <div className="bg-surface border border-border rounded-lg shadow-elevation-2 p-2">
+      <div className="bg-white rounded-lg shadow-md p-2">
         <Button
-          variant={showHeatMap ? 'default' : 'ghost'}
+          variant={showHeatMap ? 'primary' : 'ghost'}
           size="sm"
           onClick={onHeatMapToggle}
           className="justify-start"
@@ -97,7 +97,7 @@ const MapControls = ({
       </div>
 
       {/* Drawing Tools */}
-      <div className="bg-surface border border-border rounded-lg shadow-elevation-2 p-2 relative">
+      <div className="bg-white rounded-lg shadow-md p-2 relative">
         <Button
           variant="ghost"
           size="sm"
@@ -110,12 +110,12 @@ const MapControls = ({
         </Button>
 
         {isDrawingMenuOpen && (
-          <div className="absolute right-full top-0 mr-2 bg-surface border border-border rounded-lg shadow-elevation-3 p-2 min-w-40">
+          <div className="absolute right-full top-0 mr-2 bg-white rounded-lg shadow-lg p-2 min-w-40">
             <div className="space-y-1">
               {drawingTools.map((tool) => (
                 <Button
                   key={tool.id}
-                  variant={drawingMode === tool.id ? 'default' : 'ghost'}
+                  variant={drawingMode === tool.id ? 'primary' : 'ghost'}
                   size="sm"
                   onClick={() => handleDrawingToolSelect(tool.id)}
                   className="justify-start w-full"
@@ -130,7 +130,7 @@ const MapControls = ({
       </div>
 
       {/* Layer Controls */}
-      <div className="bg-surface border border-border rounded-lg shadow-elevation-2 p-2">
+      <div className="bg-white rounded-lg shadow-md p-2">
         <Button
           variant="ghost"
           size="sm"

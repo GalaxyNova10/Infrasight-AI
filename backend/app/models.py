@@ -1,4 +1,3 @@
-
 from sqlalchemy import (
     Column, String, Integer, Float, Boolean, DateTime, Text, ForeignKey, Enum, Numeric, JSON, Date
 )
@@ -6,9 +5,11 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
+import uuid  # <-- ADDED
 from .database import Base
+from geoalchemy2 import Geometry  # <-- ADDED for PostGIS
 
-# --- ENUMS ---
+# --- ENUMS (No changes needed) ---
 class UserRoleEnum(str, enum.Enum):
     admin = 'admin'
     city_official = 'city_official'
@@ -52,31 +53,42 @@ class DetectionSourceEnum(str, enum.Enum):
     sensor = 'sensor'
     manual_inspection = 'manual_inspection'
 
+class WorkOrderStatusEnum(str, enum.Enum):
+    pending = 'pending'
+    in_progress = 'in_progress'
+    completed = 'completed'
+    cancelled = 'cancelled'
+
 # --- MODELS ---
 class UserProfile(Base):
     __tablename__ = 'user_profiles'
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    email = Column(String, unique=True, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # <-- CHANGED
+    email = Column(String, unique=True, nullable=False, index=True)  # <-- CHANGED
     full_name = Column(String, nullable=False)
     role = Column(Enum(UserRoleEnum), default=UserRoleEnum.citizen, nullable=False)
     department = Column(Enum(DepartmentTypeEnum))
     phone = Column(String)
+    avatar_url = Column(String, nullable=True)
+    password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
+    reset_token = Column(String, index=True, nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # <-- CHANGED
 
-    reported_issues = relationship('InfrastructureIssue', foreign_keys='InfrastructureIssue.reported_by', back_populates='reporter')
-    assigned_issues = relationship('InfrastructureIssue', foreign_keys='InfrastructureIssue.assigned_to', back_populates='assignee')
-    uploaded_media = relationship('IssueMedia', foreign_keys='IssueMedia.uploaded_by', back_populates='uploader')
+    reported_issues = relationship('InfrastructureIssue', foreign_keys='InfrastructureIssue.reported_by_id', back_populates='reporter')
+    assigned_issues = relationship('InfrastructureIssue', foreign_keys='InfrastructureIssue.assigned_to_id', back_populates='assignee')
+    uploaded_media = relationship('IssueMedia', foreign_keys='IssueMedia.uploaded_by_id', back_populates='uploader')
     notifications = relationship('Notification', back_populates='user')
 
 class VideoFeed(Base):
     __tablename__ = 'video_feeds'
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # <-- CHANGED
     name = Column(String, nullable=False)
     location_name = Column(String, nullable=False)
     latitude = Column(Numeric(10, 8), nullable=False)
     longitude = Column(Numeric(11, 8), nullable=False)
+    location = Column(Geometry(geometry_type='POINT', srid=4326), index=True)  # <-- ADDED
     stream_url = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     ai_detection_enabled = Column(Boolean, default=True)
@@ -84,36 +96,37 @@ class VideoFeed(Base):
     installation_date = Column(Date)
     last_maintenance = Column(Date)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # <-- CHANGED
 
     issues = relationship('InfrastructureIssue', back_populates='video_feed')
     detections = relationship('AIDetection', back_populates='video_feed')
 
 class InfrastructureIssue(Base):
     __tablename__ = 'infrastructure_issues'
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # <-- CHANGED
     title = Column(String, nullable=False)
     description = Column(Text)
-    issue_type = Column(Enum(IssueTypeEnum), nullable=False)
-    status = Column(Enum(IssueStatusEnum), default=IssueStatusEnum.detected)
+    issue_type = Column(Enum(IssueTypeEnum), nullable=False, index=True)  # <-- CHANGED
+    status = Column(Enum(IssueStatusEnum), default=IssueStatusEnum.detected, index=True)  # <-- CHANGED
     priority = Column(Enum(IssuePriorityEnum), default=IssuePriorityEnum.medium)
     latitude = Column(Numeric(10, 8), nullable=False)
     longitude = Column(Numeric(11, 8), nullable=False)
+    location = Column(Geometry(geometry_type='POINT', srid=4326), index=True)  # <-- ADDED
     address = Column(String)
     detection_source = Column(Enum(DetectionSourceEnum), nullable=False)
-    video_feed_id = Column(UUID(as_uuid=True), ForeignKey('video_feeds.id'))
-    reported_by = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'))
-    assigned_to = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'))
-    department = Column(Enum(DepartmentTypeEnum))
+    video_feed_id = Column(UUID(as_uuid=True), ForeignKey('video_feeds.id'), index=True)  # <-- CHANGED
+    reported_by_id = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'), index=True)  # <-- CHANGED
+    assigned_to_id = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'), index=True)  # <-- CHANGED
+    department = Column(Enum(DepartmentTypeEnum), index=True)  # <-- CHANGED
     estimated_cost = Column(Numeric(10, 2))
     detected_at = Column(DateTime, default=datetime.utcnow)
     resolved_at = Column(DateTime)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # <-- CHANGED
 
     video_feed = relationship('VideoFeed', back_populates='issues')
-    reporter = relationship('UserProfile', foreign_keys=[reported_by], back_populates='reported_issues')
-    assignee = relationship('UserProfile', foreign_keys=[assigned_to], back_populates='assigned_issues')
+    reporter = relationship('UserProfile', foreign_keys=[reported_by_id], back_populates='reported_issues')
+    assignee = relationship('UserProfile', foreign_keys=[assigned_to_id], back_populates='assigned_issues')
     media = relationship('IssueMedia', back_populates='issue')
     work_orders = relationship('WorkOrder', back_populates='issue')
     detections = relationship('AIDetection', back_populates='issue')
@@ -121,28 +134,29 @@ class InfrastructureIssue(Base):
 
 class IssueMedia(Base):
     __tablename__ = 'issue_media'
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    issue_id = Column(UUID(as_uuid=True), ForeignKey('infrastructure_issues.id'))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # <-- CHANGED
+    issue_id = Column(UUID(as_uuid=True), ForeignKey('infrastructure_issues.id'), nullable=False, index=True)  # <-- CHANGED
     file_url = Column(String, nullable=False)
     file_type = Column(String, nullable=False)  # 'image' or 'video'
     file_size = Column(Integer)
     description = Column(Text)
     taken_at = Column(DateTime, default=datetime.utcnow)
-    uploaded_by = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'))
+    uploaded_by_id = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'), index=True)  # <-- CHANGED
     created_at = Column(DateTime, default=datetime.utcnow)
 
     issue = relationship('InfrastructureIssue', back_populates='media')
-    uploader = relationship('UserProfile', back_populates='uploaded_media')
+    uploader = relationship('UserProfile', foreign_keys=[uploaded_by_id], back_populates='uploaded_media')  # <-- CHANGED
 
 class WorkOrder(Base):
     __tablename__ = 'work_orders'
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    issue_id = Column(UUID(as_uuid=True), ForeignKey('infrastructure_issues.id'))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # <-- CHANGED
+    issue_id = Column(UUID(as_uuid=True), ForeignKey('infrastructure_issues.id'), nullable=False, index=True)  # <-- CHANGED
     title = Column(String, nullable=False)
     description = Column(Text)
-    assigned_to = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'))
-    created_by = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'))
-    department = Column(Enum(DepartmentTypeEnum), nullable=False)
+    status = Column(Enum(WorkOrderStatusEnum), default=WorkOrderStatusEnum.pending, nullable=False)
+    assigned_to_id = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'), index=True)  # <-- CHANGED
+    created_by_id = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'))
+    department = Column(Enum(DepartmentTypeEnum), nullable=False, index=True)  # <-- CHANGED
     estimated_hours = Column(Numeric(5, 2))
     actual_hours = Column(Numeric(5, 2))
     materials_cost = Column(Numeric(10, 2))
@@ -151,21 +165,21 @@ class WorkOrder(Base):
     completed_date = Column(Date)
     notes = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # <-- CHANGED
 
     issue = relationship('InfrastructureIssue', back_populates='work_orders')
 
 class AIDetection(Base):
     __tablename__ = 'ai_detections'
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    video_feed_id = Column(UUID(as_uuid=True), ForeignKey('video_feeds.id'))
-    issue_id = Column(UUID(as_uuid=True), ForeignKey('infrastructure_issues.id'))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # <-- CHANGED
+    video_feed_id = Column(UUID(as_uuid=True), ForeignKey('video_feeds.id'), index=True)  # <-- CHANGED
+    issue_id = Column(UUID(as_uuid=True), ForeignKey('infrastructure_issues.id'), index=True)  # <-- CHANGED
     detection_type = Column(Enum(IssueTypeEnum), nullable=False)
     confidence_score = Column(Numeric(5, 4), nullable=False)
     bounding_box = Column(JSON)
     image_url = Column(String)
     is_verified = Column(Boolean, default=False)
-    verified_by = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'))
+    verified_by_id = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'))
     verified_at = Column(DateTime)
     detected_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -175,13 +189,13 @@ class AIDetection(Base):
 
 class Notification(Base):
     __tablename__ = 'notifications'
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'))
-    issue_id = Column(UUID(as_uuid=True), ForeignKey('infrastructure_issues.id'))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # <-- CHANGED
+    user_id = Column(UUID(as_uuid=True), ForeignKey('user_profiles.id'), nullable=False, index=True)  # <-- CHANGED
+    issue_id = Column(UUID(as_uuid=True), ForeignKey('infrastructure_issues.id'), index=True)  # <-- CHANGED
     title = Column(String, nullable=False)
     message = Column(Text, nullable=False)
     type = Column(String, default='info')  # 'info', 'warning', 'error', 'success'
-    is_read = Column(Boolean, default=False)
+    is_read = Column(Boolean, default=False, index=True)  # <-- CHANGED
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship('UserProfile', back_populates='notifications')

@@ -19,30 +19,33 @@ const MapSidebar = ({
   });
 
   const issueTypes = [
-    { id: 'potholes', label: 'Potholes', color: 'bg-red-500', count: 127 },
-    { id: 'leaks', label: 'Water Leaks', color: 'bg-blue-500', count: 43 },
-    { id: 'lighting', label: 'Street Lighting', color: 'bg-yellow-500', count: 89 },
-    { id: 'waste', label: 'Waste Management', color: 'bg-green-500', count: 56 }
+    { id: 'potholes', label: 'Potholes', color: 'bg-red-500', count: 150 },
+    { id: 'water-leaks', label: 'Water Leaks', color: 'bg-blue-500', count: 75 },
+    { id: 'streetlights', label: 'Streetlight Issues', color: 'bg-yellow-500', count: 120 },
+    { id: 'garbage-overflow', label: 'Garbage Overflow', color: 'bg-green-500', count: 90 },
+    { id: 'road-damage', label: 'Road Damage', color: 'bg-purple-500', count: 110 },
   ];
 
   const departments = [
-    { id: 'public-works', label: 'Public Works', count: 156 },
-    { id: 'utilities', label: 'Utilities', count: 87 },
-    { id: 'sanitation', label: 'Sanitation', count: 72 }
+    { id: 'public-works', label: 'Public Works Department', count: 250 },
+    { id: 'water-supply', label: 'Water Supply and Sewerage Board', count: 150 },
+    { id: 'electricity-board', label: 'Tamil Nadu Electricity Board', count: 180 },
+    { id: 'sanitation', label: 'Sanitation Department', count: 130 },
+    { id: 'traffic-police', label: 'Traffic Police', count: 80 },
   ];
 
   const severityLevels = [
-    { id: 'critical', label: 'Critical', color: 'bg-red-600', count: 23 },
-    { id: 'high', label: 'High', color: 'bg-orange-500', count: 67 },
-    { id: 'medium', label: 'Medium', color: 'bg-yellow-500', count: 134 },
-    { id: 'low', label: 'Low', color: 'bg-green-500', count: 91 }
+    { id: 'critical', label: 'Critical', color: 'bg-red-600', count: 40 },
+    { id: 'high', label: 'High', color: 'bg-orange-500', count: 100 },
+    { id: 'medium', label: 'Medium', color: 'bg-yellow-500', count: 200 },
+    { id: 'low', label: 'Low', color: 'bg-green-500', count: 300 },
   ];
 
   const statusOptions = [
-    { id: 'reported', label: 'Reported', count: 89 },
-    { id: 'assigned', label: 'Assigned', count: 156 },
-    { id: 'in-progress', label: 'In Progress', count: 67 },
-    { id: 'resolved', label: 'Resolved', count: 203 }
+    { id: 'reported', label: 'Reported', count: 180 },
+    { id: 'assigned', label: 'Assigned', count: 220 },
+    { id: 'in-progress', label: 'In Progress', count: 150 },
+    { id: 'resolved', label: 'Resolved', count: 350 },
   ];
 
   const handleIssueTypeChange = (typeId, checked) => {
@@ -134,11 +137,11 @@ const MapSidebar = ({
   }
 
   return (
-    <div className="fixed left-0 top-16 bottom-0 w-80 bg-surface border-r border-border z-1000 overflow-y-auto">
+    <div className="fixed left-0 top-16 bottom-0 w-80 bg-white border-r border-gray-200 z-1000 overflow-y-auto">
       {/* Header */}
-      <div className="p-4 border-b border-border bg-muted">
+      <div className="p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-text-primary">Map Filters</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Map Filters</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -147,7 +150,7 @@ const MapSidebar = ({
             <Icon name="ChevronLeft" size={20} />
           </Button>
         </div>
-        <p className="text-sm text-text-secondary mt-1">
+        <p className="text-sm text-gray-500 mt-1">
           {filters.issueTypes.length + filters.departments.length + filters.severity.length + filters.status.length} filters active
         </p>
       </div>

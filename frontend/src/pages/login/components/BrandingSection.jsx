@@ -46,7 +46,7 @@ const BrandingSection = () => {
       {/* Header */}
       <div>
         <div className="flex items-center space-x-4 mb-8">
-          <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+          <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
             <Icon name="Zap" size={32} color="white" />
           </div>
           <div>
