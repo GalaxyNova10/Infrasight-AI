@@ -1,35 +1,42 @@
 InfraSight AI: Real-Time Civic Issue Detection
+
 <p align="center">
-<img src="docs/images/infrasight-logo.png" alt="InfraSight AI Logo" width="150"/>
+  <img src="frontend/src/Logo.png" alt="InfraSight AI Logo" width="150"/>
 </p>
 
 <p align="center">
-<strong>An AI-powered platform that transforms city surveillance into a proactive infrastructure monitoring network.</strong>
+  <strong>An AI-powered platform that transforms city surveillance into a proactive infrastructure monitoring network.</strong>
 </p>
 
 <p align="center">
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/Python-3.10-blue.svg" alt="Python">
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/React-18-blue.svg" alt="React">
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/FastAPI-0.100-green.svg" alt="FastAPI">
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/PostgreSQL-13-blue.svg" alt="PostgreSQL">
-<img src="https://www.google.com/search?q=https://img.shields.io/badge/Docker-Ready-blue.svg" alt="Docker">
+  <img src="https://img.shields.io/badge/Python-3.10-blue.svg" alt="Python">
+  <img src="https://img.shields.io/badge/React-18-blue.svg" alt="React">
+  <img src="https://img.shields.io/badge/FastAPI-0.100-green.svg" alt="FastAPI">
+  <img src="https://img.shields.io/badge/PostgreSQL-13-blue.svg" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/Docker-Ready-blue.svg" alt="Docker">
 </p>
 
-🚀 The Solution in Action
+---
+
+## 🚀 The Solution in Action
+
 InfraSight AI automatically detects civic issues from camera feeds and citizen reports, streamlining the process from detection to resolution. Our system provides a live dashboard and interactive map for officials to make data-driven decisions.
 
-Put a high-quality GIF of your application dashboard or map in action here. This is the most powerful way to show what your project does.
+*Put a high-quality GIF of your application dashboard or map in action here. This is the most powerful way to show what your project does.*
 
-✨ Key Features
-🤖 Automated AI Detection: Real-time identification of civic issues from video streams using a custom-trained YOLOv8 model.
+![InfraSight AI Dashboard Demo](docs/images/dashboard-demo.gif)
 
-📝 Intelligent Citizen Reporting: A web portal for citizens to submit reports with images, which are verified and analyzed by our AI.
+## ✨ Key Features
 
-🗺️ Live Interactive Map: A geospatial dashboard for officials to view the real-time location and status of all reported issues.
+- **🤖 Automated AI Detection:** Real-time identification of civic issues from video streams using a custom-trained YOLOv8 model.
 
-📊 Data-Driven Analytics: A comprehensive dashboard that provides insights into issue hotspots, resolution times, and departmental performance.
+- **📝 Intelligent Citizen Reporting:** A web portal for citizens to submit reports with images, which are verified and analyzed by our AI. 
 
-🔔 Real-time Alerts: Automated notifications sent to the correct municipal departments via the Twilio API.
+- **🗺️ Live Interactive Map:** A geospatial dashboard for officials to view the real-time location and status of all reported issues.
+
+- **📊 Data-Driven Analytics:** A comprehensive dashboard that provides insights into issue hotspots, resolution times, and departmental performance.
+
+- **🔔 Real-time Alerts:** Automated notifications sent to the correct municipal departments via the Twilio API.
 
 🧠 Our Custom AI Model
 The core of InfraSight is a powerful YOLOv8 model we trained on a massive, 5-class dataset of over 74,000 images tailored for urban environments.
