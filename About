@@ -1,0 +1,111 @@
+InfraSight AI: Real-Time Civic Issue Detection
+InfraSight AI is an AI-powered platform that transforms city-wide surveillance cameras into a proactive infrastructure monitoring network. It automatically detects, categorizes, and reports civic issues, streamlining the entire workflow from detection to resolution.
+
+The Problem Statement: Crowdsourced Civic Issue Reporting 
+
+The current system for reporting civic infrastructure issues is slow and reactive.  It relies on citizens to notice a problem, make a phone call or file a complaint, and then wait for manual processing. This leads to significant delays, increased public safety risks, and inefficient allocation of municipal resources.
+
+Our Solution: A Proactive & Automated Platform
+InfraSight AI tackles this problem by creating a "smart city" solution that is both proactive and automated.
+
+
+Real-time Detection: Instead of waiting for complaints, our system uses a custom-trained AI model to analyze live video feeds from city cameras, identifying issues the moment they occur. 
+
+Intelligent Citizen Reporting: Citizens can submit reports with images and text. Our AI verifies the images and uses Natural Language Processing (NLP) to understand and categorize text-based reports.
+
+
+Centralized Dashboard & Map: We provide a live, interactive map and a comprehensive dashboard for officials to visualize problem hotspots, track resolution progress, and make data-driven decisions. 
+
+
+Our system reduces the reporting lifecycle from days or weeks down to just 
+
+seconds, enabling a truly proactive approach to city management. 
+
+Key Features
+
+Custom 5-Class AI Model: Detects Potholes, Garbage Piles, Street Flooding, Illegal Parking, and Debris with high accuracy. 
+
+Interactive Geospatial Map: A live map for officials to see the real-time location and status of all reported issues.
+
+Real-time Video Monitoring: A dedicated interface for officials to view live camera feeds with AI detections overlaid.
+
+Citizen Reporting Portal: An easy-to-use web form for citizens to submit issues with image uploads.
+
+Automated Alerts: The system is designed to send automated notifications to the correct municipal departments via the Twilio API.
+
+Technology Stack & Architecture
+Our platform is built on a modern, robust, and scalable tech stack, fully containerized with Docker for consistent deployment.
+
+Component	Technology
+AI / Machine Learning	Python, Ultralytics YOLOv8, spaCy
+Backend	FastAPI (Python)
+Frontend	React
+Database	PostgreSQL with PostGIS extension
+Deployment	Docker
+
+Export to Sheets
+Architecture Overview
+The system uses a dual-stream pipeline. The first stream processes real-time video feeds for automated detection. The second stream handles citizen-submitted reports, using both CV and NLP for analysis. Both streams feed into a unified database, which powers the frontend dashboard and map for city officials.
+
+The AI Model
+The core of InfraSight AI is a custom-trained YOLOv8 model. We went beyond using a generic model to create one specifically tailored for the urban environment of Chennai.
+
+
+Massive Dataset: Trained on a comprehensive, merged dataset of over 74,000 images sourced from various public datasets. 
+
+
+5 Critical Classes: The model is trained to accurately detect the five most common and high-impact civic issues. 
+
+Getting Started: Running the Project Locally
+This project is fully containerized with Docker and Docker Compose.
+
+Prerequisites
+Docker Desktop installed and running.
+
+Git for cloning the repository.
+
+Setup Instructions
+Clone the Repository:
+
+Bash
+
+git clone https://github.com/your-username/infrasight-ai.git
+cd infrasight-ai
+Configure Environment Variables:
+
+Navigate into the backend directory.
+
+Make a copy of the example environment file: copy .env.example .env
+
+Open the new .env file and fill in your specific credentials for the Database, Google Client ID, Secret Key, and Twilio.
+
+Place Your Trained Model:
+
+Download your custom-trained best.pt model file.
+
+Place it inside the backend/models/ directory.
+
+Build and Run with Docker Compose:
+
+From the project's root directory, run the following command. This will build the images and start all the services.
+
+Bash
+
+docker-compose up --build
+Access the Application:
+
+Frontend: Open your web browser and navigate to http://localhost:3000
+
+Backend API Docs: Navigate to http://localhost:8000/docs
+
+Future Work
+We have a clear roadmap for expanding the capabilities of InfraSight AI:
+
+More Issue Classes: Train the model to detect new issues like damaged traffic signs and open manholes.
+
+Predictive Analytics: Use historical data to identify potential problem hotspots before they occur.
+
+Citizen Feedback Loop: Implement a public portal for citizens to view the status of reported issues and provide feedback.
+
+Team
+Shadow Legion
