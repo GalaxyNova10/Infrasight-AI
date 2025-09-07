@@ -6,6 +6,7 @@ const PublicHomeHeader = () => {
     { name: 'Community', path: '/community' },
     { name: 'Report', path: '/report' },
     { name: 'My Reports', path: '/my-reports' },
+    { name: 'Public Data', path: '/public-data' },
     { name: 'Login/Register', path: '/login' },
   ];
 
