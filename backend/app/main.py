@@ -6,6 +6,9 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
+
 # Import your project modules
 from . import models, schemas, cv_model
 from .database import engine, get_db
@@ -36,7 +39,7 @@ models.Base.metadata.create_all(bind=engine)
 async def lifespan(app: FastAPI):
     # Code to run on startup
     print("--- Loading CV Model ---")
-    cv_model.load_model()
+    cv_model.load_models()
     print("--- CV Model Loaded Successfully ---")
     yield
     # Code to run on shutdown (optional)
@@ -50,8 +53,15 @@ app = FastAPI(
     lifespan=lifespan  # Use the lifespan event for startup tasks
 )
 
+app.mount("/videos", StaticFiles(directory="videos"), name="videos")
+
 # Configure CORS (Cross-Origin Resource Sharing)
-origins = os.getenv("FRONTEND_URL", "http://localhost:3000").split(",")
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173", # Vite's default port
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -91,7 +101,7 @@ async def root():
 @app.get("/health")
 async def health_check(db: Session = Depends(get_db)):
     try:
-        db.execute('SELECT 1')
+        db.execute(text('SELECT 1')) # Changed this line
         return {"status": "ok", "database": "connected"}
     except Exception as e:
         return {"status": "error", "database": "disconnected", "error": str(e)}

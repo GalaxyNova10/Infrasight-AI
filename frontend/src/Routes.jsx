@@ -22,6 +22,9 @@ const AnalyticsDashboard = React.lazy(() => import("./pages/analytics-dashboard"
 const VideoFeedMonitoring = React.lazy(() => import("./pages/video-feed-monitoring"));
 const ForgotPasswordPage = React.lazy(() => import("./pages/forgot-password"));
 const ResetPasswordPage = React.lazy(() => import("./pages/reset-password"));
+const TestingPage = React.lazy(() => import("./pages/testing"));
+const UsersPage = React.lazy(() => import("./pages/users"));
+const ReportsPage = React.lazy(() => import("./pages/reports"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 
 // A simple component to show while pages are loading
@@ -50,6 +53,9 @@ const ProjectRoutes = () => {
             <Route path="interactive-infrastructure-map" element={<InteractiveInfrastructureMap />} />
             <Route path="analytics-dashboard" element={<AnalyticsDashboard />} />
             <Route path="video-feed-monitoring" element={<VideoFeedMonitoring />} />
+            <Route path="testing" element={<TestingPage />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="reports" element={<ReportsPage />} />
           </Route>
 
           {/* Standalone Routes */}

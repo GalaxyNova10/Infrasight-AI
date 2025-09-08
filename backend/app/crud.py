@@ -6,6 +6,11 @@ def get_user_by_email(db: Session, email: str):
     """Fetches a single user by their email address."""
     return db.query(models.UserProfile).filter(models.UserProfile.email == email).first()
 
+def get_users(db: Session, skip: int = 0, limit: int = 100):
+    """Fetches all users with pagination."""
+    return db.query(models.UserProfile).offset(skip).limit(limit).all()
+
+
 def create_user(db: Session, user: schemas.UserProfileCreate):
     """Creates a new user, hashes the password, and saves to the database."""
     hashed_password = security.get_password_hash(user.password)

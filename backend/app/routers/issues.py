@@ -5,7 +5,7 @@ from sqlalchemy import func, and_, extract, cast, Date
 from datetime import datetime, timedelta
 import uuid
 
-from .. import models, schemas, database
+from .. import models, schemas, database, security
 
 router = APIRouter(
     prefix="/issues", # The /api/v1 prefix is handled in main.py
@@ -217,3 +217,22 @@ def update_work_order_status(
     db.commit()
     db.refresh(work_order)
     return work_order
+
+@router.patch("/{issue_id}/resolve", response_model=schemas.InfrastructureIssue)
+def resolve_issue(
+    issue_id: uuid.UUID,
+    db: Session = Depends(database.get_db),
+    current_user: models.UserProfile = Depends(security.get_current_admin_user)
+):
+    """
+    Mark an issue as resolved.
+    """
+    db_issue = db.query(models.InfrastructureIssue).filter(models.InfrastructureIssue.id == issue_id).first()
+    if not db_issue:
+        raise HTTPException(status_code=404, detail="Issue not found")
+
+    db_issue.status = schemas.IssueStatusEnum.resolved
+    db_issue.resolved_at = datetime.utcnow()
+    db.commit()
+    db.refresh(db_issue)
+    return _convert_issue_to_schema(db_issue)

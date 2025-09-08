@@ -22,7 +22,7 @@ const VideoFeedGrid = ({
       location: 'Downtown District',
       status: 'active',
       recording: true,
-      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-traffic-in-a-city-at-night-4133-large.mp4',
+      videoUrl: 'http://localhost:8000/videos/street.mp4',
     },
     {
       id: 'cam_002',
@@ -30,7 +30,7 @@ const VideoFeedGrid = ({
       location: 'Government District',
       status: 'active',
       recording: true,
-      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-people-walking-on-a-street-in-the-rain-4135-large.mp4',
+      videoUrl: 'http://localhost:8000/videos/street.mp4',
     },
     {
       id: 'cam_003',
@@ -38,7 +38,7 @@ const VideoFeedGrid = ({
       location: 'Industrial Zone',
       status: 'active',
       recording: false,
-      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-a-bridge-over-a-river-in-a-city-4134-large.mp4',
+      videoUrl: 'http://localhost:8000/videos/street.mp4',
     },
     {
       id: 'cam_004',
@@ -46,7 +46,7 @@ const VideoFeedGrid = ({
       location: 'Residential Area',
       status: 'maintenance',
       recording: false,
-      videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-times-square-in-new-york-at-night-4132-large.mp4',
+      videoUrl: 'http://localhost:8000/videos/street.mp4',
     }
   ];
 

@@ -2,13 +2,27 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-from .. import models, schemas, security
+from .. import models, schemas, security, crud
 from ..database import get_db
 
 router = APIRouter(
     prefix="/users",
     tags=["Users"]
 )
+
+@router.get("/", response_model=List[schemas.UserProfile])
+def read_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: models.UserProfile = Depends(security.get_current_admin_user)
+):
+    """
+    Retrieve all users.
+    This endpoint is only accessible to admin users.
+    """
+    users = crud.get_users(db, skip=skip, limit=limit)
+    return users
 
 @router.get("/me/issues", response_model=List[schemas.InfrastructureIssue])
 def get_my_issues(

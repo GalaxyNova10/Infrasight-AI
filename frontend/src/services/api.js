@@ -47,10 +47,14 @@ export const loginWithGoogle = async (token) => {
 
 // --- USER ---
 export const getProfile = () => api.get('/users/me');
+export const getUsers = () => api.get('/users/');
 
 
 // --- ISSUES & REPORTS ---
 export const getIssues = () => api.get(`/issues`);
+export const getIssuesSummary = () => api.get('/issues/summary');
+export const createWorkOrder = (workOrderData) => api.post('/issues/work-orders', workOrderData);
+export const resolveIssue = (issueId) => api.patch(`/issues/${issueId}/resolve`);
 
 export const submitReport = async (reportData, imageFile) => {
   const formData = new FormData();
@@ -71,7 +75,7 @@ export const submitReport = async (reportData, imageFile) => {
 export const getCommunityData = () => api.get('/community/');
 
 // --- COMPUTER VISION ---
-// Function to send an image for AI prediction
+// Function to send an image for AI prediction (old synchronous endpoint)
 export const predictImage = async (imageFile) => {
     const formData = new FormData();
     formData.append("file", imageFile);
@@ -82,4 +86,23 @@ export const predictImage = async (imageFile) => {
         },
     });
     return response.data;
+};
+
+// New: Function to submit an image for asynchronous processing
+export const submitImageForProcessing = async (imageFile) => {
+  const formData = new FormData();
+  formData.append("file", imageFile);
+
+  const response = await api.post('/cv-api/predict-async', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data; // Should return { job_id: "..." }
+};
+
+// New: Function to get the status and results of an asynchronous processing job
+export const getProcessingResults = async (jobId) => {
+  const response = await api.get(`/cv-api/results/${jobId}`);
+  return response.data; // Should return { status: "processing" } or { status: "complete", ... }
 };

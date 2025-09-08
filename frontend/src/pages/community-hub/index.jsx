@@ -361,7 +361,7 @@ const CommunityHub = () => {
                     {index > 2 && `#${index + 1}`}
                   </span>
                   <img
-                    src={reporter.avatarUrl || "https://via.placeholder.com/40"}
+                    src={reporter.avatarUrl || "https://i.pravatar.cc/40"}
                     alt={reporter.username}
                     className="w-10 h-10 rounded-full object-cover mr-3"
                   />
@@ -406,7 +406,7 @@ const CommunityHub = () => {
               {spotlight.map((story, index) => (
                 <SwiperSlide key={index}>
                   <div className="relative bg-secondary rounded-2xl p-6 pb-12 h-auto flex flex-col justify-between">
-                    <img src={story.imageUrl || "https://via.placeholder.com/300x150"} alt={story.issueTitle} className="w-full h-32 object-cover rounded-lg shadow-md mb-4" /> 
+                    <img src={story.imageUrl || "https://i.pravatar.cc/300x150"} alt={story.issueTitle} className="w-full h-32 object-cover rounded-lg shadow-md mb-4" /> 
                     <div className="relative z-10 text-center">
                       <h3 className="text-xl font-bold text-primary mb-2">
                         {story.issueTitle}

@@ -5,13 +5,20 @@ import { useAuth } from '../../context/AuthContext';
 const Header = () => {
   const { user, logout } = useAuth();
 
-  const navItems = [
+  let navItems = [
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'Map', path: '/dashboard/interactive-infrastructure-map' },
     { name: 'Analytics', path: '/dashboard/analytics-dashboard' },
     { name: 'Video Feeds', path: '/dashboard/video-feed-monitoring' },
-    
   ];
+
+  if (user && user.role === 'admin') {
+    navItems.push(
+      { name: 'Testing', path: '/dashboard/testing' },
+      { name: 'Users', path: '/dashboard/users' },
+      { name: 'Reports', path: '/dashboard/reports' }
+    );
+  }
 
   return (
     <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
