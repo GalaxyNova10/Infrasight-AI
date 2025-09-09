@@ -42,7 +42,7 @@ const Header = () => {
           ))}
           {user && (
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">{user.role}</span>
+              <span className="text-sm text-gray-600">{user.full_name} ({user.role})</span>
               <button onClick={logout} className="text-sm text-primary hover:underline">
                 Logout
               </button>

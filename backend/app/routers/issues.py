@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, and_, extract, cast, Date
 from datetime import datetime, timedelta
 import uuid
@@ -149,31 +149,48 @@ def get_analytics_data(
 
 
 
-@router.get("/summary", response_model=List[schemas.InfrastructureIssue])
-def get_issues_summary(
-    limit: int = Query(10, description="Number of issues to return"),
-    db: Session = Depends(database.get_db)
+@router.get("/", response_model=List[schemas.InfrastructureIssueAdmin])
+def get_all_issues(
+    status: Optional[schemas.IssueStatusEnum] = Query(None, description="Filter issues by status"),
+    limit: int = Query(100, description="Number of issues to return"),
+    db: Session = Depends(database.get_db),
+    current_user: models.UserProfile = Depends(security.get_current_admin_user) # Protect endpoint
 ):
-    """Get a summary of recent issues for the dashboard table."""
+    """Get all infrastructure issues, with optional filtering by status."""
     try:
-        recent_issues = db.query(models.InfrastructureIssue).order_by(
-            models.InfrastructureIssue.detected_at.desc()
-        ).limit(limit).all()
+        query = db.query(models.InfrastructureIssue).options(
+            joinedload(models.InfrastructureIssue.reporter),
+            joinedload(models.InfrastructureIssue.media)
+        )
+
+        if status:
+            query = query.filter(models.InfrastructureIssue.status == status)
+
+        issues = query.order_by(models.InfrastructureIssue.detected_at.desc()).limit(limit).all()
         
-        return [_convert_issue_to_schema(issue) for issue in recent_issues]
+        return issues
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to get issues summary")
+        # Log the error e
+        raise HTTPException(status_code=500, detail="Failed to get issues")
 
 
 @router.post("/work-orders", response_model=schemas.WorkOrder, status_code=status.HTTP_201_CREATED)
-def create_work_order(work_order: schemas.WorkOrderCreate, db: Session = Depends(database.get_db)):
-    """Create a new work order for an issue."""
+def create_work_order(
+    work_order: schemas.WorkOrderCreate, 
+    db: Session = Depends(database.get_db),
+    current_user: models.UserProfile = Depends(security.get_current_admin_user)
+):
+    """Create a new work order and update the parent issue's status."""
     db_issue = db.query(models.InfrastructureIssue).filter(models.InfrastructureIssue.id == work_order.issue_id).first()
     if not db_issue:
         raise HTTPException(status_code=404, detail="Issue not found")
+
+    # Update the issue's status to 'in_progress'
+    db_issue.status = schemas.IssueStatusEnum.in_progress
     
     db_work_order = models.WorkOrder(**work_order.model_dump())
     db.add(db_work_order)
+    db.add(db_issue) # Add the updated issue to the session
     db.commit()
     db.refresh(db_work_order)
     return db_work_order

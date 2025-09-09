@@ -7,6 +7,7 @@ export const AuthContext = createContext(null);
 // Create the provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [authToken, setAuthToken] = useState(null); // New state for authToken
 
   useEffect(() => {
     // Check for an existing token when the app first loads
@@ -16,14 +17,20 @@ export const AuthProvider = ({ children }) => {
         const decoded = jwtDecode(token);
         // Check if the token is still valid
         if (decoded.exp * 1000 > Date.now()) {
-          setUser({ email: decoded.sub, role: decoded.role });
+          // Extract full_name along with email and role
+          setUser({ email: decoded.sub, role: decoded.role, full_name: decoded.full_name });
+          setAuthToken(token); // Set authToken state
         } else {
           // If token is expired, remove it
           localStorage.removeItem('authToken');
+          setUser(null);
+          setAuthToken(null);
         }
       } catch (error) {
         console.error("Failed to decode token on initial load:", error);
         localStorage.removeItem('authToken');
+        setUser(null);
+        setAuthToken(null);
       }
     }
   }, []);
@@ -32,18 +39,21 @@ export const AuthProvider = ({ children }) => {
   const loginAction = (token) => {
     localStorage.setItem('authToken', token);
     const decoded = jwtDecode(token);
-    const userData = { email: decoded.sub, role: decoded.role };
+    // Extract full_name along with email and role
+    const userData = { email: decoded.sub, role: decoded.role, full_name: decoded.full_name };
     setUser(userData);
+    setAuthToken(token); // Set authToken state
     return userData; // Return the user data after login
   };
 
   const logoutAction = () => {
     localStorage.removeItem('authToken');
     setUser(null);
+    setAuthToken(null); // Clear authToken state
   };
 
   // The value provided to all child components
-  const value = { user, loginAction, logoutAction };
+  const value = { user, authToken, loginAction, logoutAction }; // Expose authToken
 
   return (
     <AuthContext.Provider value={value}>

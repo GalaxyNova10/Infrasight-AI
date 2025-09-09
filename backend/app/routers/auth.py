@@ -48,7 +48,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
         )
     
     access_token = security.create_access_token(
-        data={"sub": user.email, "role": user.role.value}
+        data={"sub": user.email, "role": user.role.value, "full_name": user.full_name}
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -80,7 +80,7 @@ def google_auth(token_request: schemas.GoogleToken, db: Session = Depends(databa
             user = crud.create_user(db, user=user_data)
         
         access_token = security.create_access_token(
-            data={"sub": user.email, "role": user.role.value}
+            data={"sub": user.email, "role": user.role.value, "full_name": user.full_name}
         )
         return {"access_token": access_token, "token_type": "bearer"}
 

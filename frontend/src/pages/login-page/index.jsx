@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 
 // Import our custom hooks and services
 import { useAuth } from '../../context/AuthContext';
-import { login, loginWithGoogle } from '../../services/api';
+import { login } from '../../services/api';
 import Icon from '../../components/AppIcon';
 
 const LoginPage = () => {
@@ -61,25 +60,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setIsLoading(true);
-    setError('');
-    try {
-      // Send Google's token to our backend to get our app's token
-      const data = await loginWithGoogle(credentialResponse.credential);
-      handleLoginSuccess(data.access_token);
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Google login failed. Please try again.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleError = () => {
-    setError('Google sign-in failed. Please try again.');
-  };
-
   return (
     <>
       <Helmet>
@@ -115,16 +95,6 @@ const LoginPage = () => {
 
           {/* Login Methods */}
           <div className="bg-surface border border-border rounded-lg shadow-elevation-2 p-8">
-            <div className="flex justify-center">
-              <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} theme="filled_blue" width="300px" />
-            </div>
-            
-            <div className="relative flex py-5 items-center">
-              <div className="flex-grow border-t border-gray-300"></div>
-              <span className="flex-shrink mx-4 text-gray-500">Or sign in with email</span>
-              <div className="flex-grow border-t border-gray-300"></div>
-            </div>
-
             <form onSubmit={handleEmailSubmit} className="space-y-6">
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">

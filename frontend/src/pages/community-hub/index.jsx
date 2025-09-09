@@ -149,7 +149,7 @@ const CommunityHub = () => {
       return issue.status === "Resolved";
     }
     return true;
-  });
+  }).filter(issue => issue.latitude !== null && issue.longitude !== null && issue.latitude !== undefined && issue.longitude !== undefined);
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8 text-foreground">
@@ -287,7 +287,7 @@ const CommunityHub = () => {
                       }}
                     >
                       <Popup>
-                        <div className="font-semibold">{issue.type.replace('_', ' ').toUpperCase()}</div>
+                        <div className="font-semibold">{(issue.type || '').replace('_', ' ').toUpperCase()}</div>
                         <div>Status: {issue.status}</div>
                       </Popup>
                     </Marker>

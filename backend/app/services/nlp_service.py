@@ -23,12 +23,10 @@ def _load_nlp_model():
 # More specific keywords for better accuracy
 ISSUE_KEYWORDS = {
     IssueTypeEnum.pothole: ["pothole", "crater", "road is broken"],
-    IssueTypeEnum.garbage_overflow: ["garbage", "trash", "dump", "waste", "overflowing bin"],
-    IssueTypeEnum.water_leak: ["water leak", "pipe burst", "flooding", "water logging", "sewage"],
-    IssueTypeEnum.streetlight_fault: ["streetlight out", "light not working", "lamp broken"],
-    IssueTypeEnum.traffic_signal: ["traffic light broken", "signal not working"],
-    IssueTypeEnum.road_damage: ["road damage", "crack in road", "uneven surface"],
-    IssueTypeEnum.sidewalk_issue: ["sidewalk broken", "pavement issue", "footpath damaged"],
+    IssueTypeEnum.garbage_piles: ["garbage", "trash", "dump", "waste", "overflowing bin", "garbage piles"],
+    IssueTypeEnum.street_flooding: ["water leak", "pipe burst", "flooding", "water logging", "sewage", "street flooding"],
+    IssueTypeEnum.illegal_parking: ["illegal parking", "wrong parking", "parked illegally"],
+    IssueTypeEnum.debris: ["debris", "rubble", "construction waste", "fallen objects"],
 }
 
 def analyze_report_text(text: str) -> dict:

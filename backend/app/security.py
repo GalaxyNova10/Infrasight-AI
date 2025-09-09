@@ -50,15 +50,27 @@ def get_current_user(db: Session = Depends(database.get_db), token: str = Depend
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
+        # Extract full_name and role from payload
+        full_name: str = payload.get("full_name")
+        role: str = payload.get("role")
+
         if email is None:
             raise credentials_exception
-        token_data = schemas.TokenData(username=email) # FastAPI uses 'username' field here
+        # token_data = schemas.TokenData(username=email) # FastAPI uses 'username' field here
+        # The TokenData schema might need to be updated if you want to use it for full_name and role
+        # For now, we'll directly use the payload values
+
     except JWTError:
         raise credentials_exception
     
-    user = crud.get_user_by_email(db, email=token_data.username)
+    user = crud.get_user_by_email(db, email=email) # Use email directly
     if user is None:
         raise credentials_exception
+    
+    # You might want to verify that the role in the token matches the role in the DB
+    # if user.role.value != role:
+    #     raise credentials_exception
+
     return user
 
 def get_current_active_user(current_user: models.UserProfile = Depends(get_current_user)):

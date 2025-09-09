@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
 import { register } from '../../services/api';
-import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -34,41 +29,28 @@ const RegisterPage = () => {
 
     try {
       const userData = { ...formData, role: 'citizen' };
+      if (userData.phone === '') {
+        delete userData.phone;
+      }
       await register(userData);
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setIsLoading(true);
-    setError('');
-    try {
-      const response = await axios.post(`${API_URL}/auth/google`, { token: credentialResponse.credential });
-      const { access_token } = response.data;
-      login(access_token);
-      const decodedToken = jwtDecode(access_token);
-      const userRole = decodedToken.role;
-
-      if (userRole.includes('official')) {
-        navigate('/dashboard');
-      } else {
-        navigate('/');
+      // FastAPI validation errors are in err.response.data.detail which can be an array
+      let errorMessage = 'Registration failed. Please try again.';
+      if (err.response?.data?.detail) {
+        if (Array.isArray(err.response.data.detail)) {
+          // Take the message from the first validation error
+          errorMessage = err.response.data.detail[0].msg;
+        } else {
+          // Handle string-based error details
+          errorMessage = err.response.data.detail;
+        }
       }
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Google registration failed. Please try again.');
-      console.error(err);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleError = () => {
-    setError('Google sign-in failed. Please try again.');
   };
 
   return (
@@ -89,16 +71,6 @@ const RegisterPage = () => {
                 Sign in
               </Link>
             </p>
-          </div>
-
-          <div className="flex justify-center">
-            <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} theme="filled_blue" />
-          </div>
-          
-          <div className="relative flex py-5 items-center">
-            <div className="flex-grow border-t border-gray-300"></div>
-            <span className="flex-shrink mx-4 text-gray-500">Or register with email</span>
-            <div className="flex-grow border-t border-gray-300"></div>
           </div>
 
           <form className="space-y-6" onSubmit={handleEmailSubmit}>

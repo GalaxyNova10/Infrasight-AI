@@ -2,9 +2,12 @@
 
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse # Import JSONResponse
+from fastapi.exceptions import RequestValidationError # Import RequestValidationError
+from pydantic import ValidationError # Import ValidationError
 
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
@@ -54,6 +57,7 @@ app = FastAPI(
 )
 
 app.mount("/videos", StaticFiles(directory="videos"), name="videos")
+app.mount("/uploads", StaticFiles(directory="backend/uploads"), name="uploads")
 
 # Configure CORS (Cross-Origin Resource Sharing)
 origins = [
@@ -70,6 +74,27 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Custom exception handler for RequestValidationError (422 errors)
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    print(f"Validation error occurred: {exc.errors()} for request: {request.url}")
+    # Do not try to serialize exc.body directly, just return the detail
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors()}
+    )
+
+# Custom exception handler for Pydantic ValidationError (if not caught by RequestValidationError)
+@app.exception_handler(ValidationError)
+async def pydantic_validation_exception_handler(request: Request, exc: ValidationError):
+    print(f"Pydantic validation error occurred: {exc.errors()} for request: {request.url}")
+    # Do not try to serialize exc.body directly, just return the detail
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors()}
+    )
+
 
 # Include all the API routers
 app.include_router(auth.router, prefix="/api/v1")

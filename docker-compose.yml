@@ -4,7 +4,7 @@ services:
       context: "./backend"
       dockerfile: Dockerfile
     container_name: backend
-    command: sh -c "python scripts/seed.py && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app"
+    command: sh -c "python scripts/seed.py && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app --log-level debug" # Added --log-level debug
     volumes:
       - "./backend:/app"
       - "./videos:/app/videos"
@@ -42,6 +42,8 @@ services:
       - "3000:3000"
     environment:
       - WATCHPACK_POLLING=true
+      - VITE_API_BASE_URL=http://backend:8000
+      - VITE_CV_PROCESSOR_URL=http://backend:8000/api/v1/cv-api/predict/image
     stdin_open: true
     tty: true
     networks:

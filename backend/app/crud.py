@@ -28,8 +28,21 @@ def create_user(db: Session, user: schemas.UserProfileCreate):
 
 def create_infrastructure_issue(db: Session, issue: schemas.InfrastructureIssueCreate):
     """Creates a new infrastructure issue and saves it to the database."""
-    db_issue = models.InfrastructureIssue(**issue.dict())
+    db_issue = models.InfrastructureIssue(**issue.model_dump())
     db.add(db_issue)
     db.commit()
     db.refresh(db_issue)
     return db_issue
+
+def create_issue_media(db: Session, issue_id: str, file_path: str, uploaded_by_id: str):
+    """Creates a new issue media record."""
+    db_media = models.IssueMedia(
+        issue_id=issue_id,
+        file_url=file_path,
+        uploaded_by_id=uploaded_by_id,
+        file_type='image' # Assuming image for now
+    )
+    db.add(db_media)
+    db.commit()
+    db.refresh(db_media)
+    return db_media

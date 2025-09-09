@@ -1,98 +1,78 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Form, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, Form
 from sqlalchemy.orm import Session
-from typing import List, Optional
-from datetime import datetime
+from typing import Optional
+import shutil
+import os
 import uuid
-import os # Import os for file size check
 
-# Import from your project's modules
-from .. import database, schemas, crud, models, security
+from .. import crud, schemas, models
+from ..database import get_db
+from ..security import get_current_active_user
 
 router = APIRouter(
     prefix="/citizen-reports",
-    tags=["Citizen Reports"]
+    tags=["citizen-reports"],
+    responses={404: {"description": "Not found"}},
 )
 
-# Define allowed image types and max file size
-ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif"]
-MAX_IMAGE_SIZE_MB = 5
-MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024
+UPLOAD_DIR = "backend/uploads"
 
-@router.post("/", response_model=schemas.InfrastructureIssue, status_code=status.HTTP_201_CREATED)
-def create_citizen_report(
-    db: Session = Depends(database.get_db),
-    current_user: models.UserProfile = Depends(security.get_current_active_user),
-    # Use Form(...) for multipart/form-data from the frontend
+# Ensure the upload directory exists
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+@router.post("/", response_model=schemas.InfrastructureIssue)
+async def create_citizen_report(
     title: str = Form(...),
-    description: str = Form(...),
-    issue_type: schemas.IssueTypeEnum = Form(...),
-    latitude: float = Form(...),
-    longitude: float = Form(...),
+    description: Optional[str] = Form(None),
+    issue_type: models.IssueTypeEnum = Form(...),
+    latitude: Optional[float] = Form(None),
+    longitude: Optional[float] = Form(None),
     address: Optional[str] = Form(None),
-    image: Optional[UploadFile] = File(None) # Optional file upload
+    image: Optional[UploadFile] = File(None),
+    current_user: models.UserProfile = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
 ):
     """
-    Creates a new infrastructure issue from a citizen report.
-    This endpoint is designed to be called from a form that includes a file upload.
+    Allows an authenticated citizen to report an infrastructure issue.
+    Includes optional image upload and links the report to the current user.
     """
-    
-    # Validate image file if provided
+    print(f"Received report: title={title}, issue_type={issue_type}, latitude={latitude}, longitude={longitude}")
+
+    image_path = None
     if image:
-        if image.content_type not in ALLOWED_IMAGE_TYPES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid image type. Only {', '.join(ALLOWED_IMAGE_TYPES)} are allowed."
-            )
-        # Read a small chunk to check size without loading entire file into memory
-        # This is a basic check, for very large files, streaming might be better
-        image.file.seek(0, os.SEEK_END)
-        file_size = image.file.tell()
-        image.file.seek(0) # Reset file pointer to the beginning
+        try:
+            file_extension = os.path.splitext(image.filename)[1]
+            unique_filename = f"{uuid.uuid4()}{file_extension}"
+            image_path = os.path.join(UPLOAD_DIR, unique_filename)
 
-        if file_size > MAX_IMAGE_SIZE_BYTES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Image file size exceeds {MAX_IMAGE_SIZE_MB}MB limit."
-            )
+            # Save the image to the local filesystem
+            with open(image_path, "wb") as buffer:
+                shutil.copyfileobj(image.file, buffer)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Could not upload image: {e}")
 
-    # In a real-world application, you would add logic here to:
-    # 1. Get the currently logged-in user to set as the reporter.
-    # 2. If an 'image' is provided, upload it to a cloud storage service (like AWS S3)
-    #    and save the URL to a new IssueMedia record in the database.
-    
-    # Create the Pydantic schema for the new issue
-    report_data = schemas.InfrastructureIssueCreate(
+    # Create the InfrastructureIssue
+    issue_create = schemas.InfrastructureIssueCreate(
         title=title,
         description=description,
         issue_type=issue_type,
         latitude=latitude,
         longitude=longitude,
         address=address,
-        detection_source='citizen_report',
+        detection_source=models.DetectionSourceEnum.citizen_report,
         reported_by_id=current_user.id
     )
-    
-    # In a fully implemented system, you would call your CRUD function:
-    new_issue = crud.create_infrastructure_issue(db=db, issue=report_data)
-    return new_issue
-    
-    # Returning a placeholder response until the user ID logic is complete
-    # to prevent database errors for now.
-    # return {
-    #     "id": uuid.uuid4(),
-    #     "title": title,
-    #     "description": description,
-    #     "issue_type": issue_type,
-    #     "latitude": latitude,
-    #     "longitude": longitude,
-    #     "address": address,
-    #     "status": "detected",
-    #     "priority": "medium",
-    #     "detection_source": "citizen_report",
-    #     "detected_at": datetime.utcnow(),
-    #     "reporter": None
-    # }
+    db_issue = crud.create_infrastructure_issue(db=db, issue=issue_create)
 
-# NOTE: The other endpoints for getting/updating reports should be in a separate
-# `issues.py` router, since citizen reports are just one type of issue.
-# This keeps your API clean and avoids duplicate logic.
+    # If an image was uploaded, create a Media record
+    if image_path:
+        media_file_url = f"/uploads/{unique_filename}"
+        crud.create_issue_media(
+            db=db,
+            issue_id=db_issue.id,
+            file_path=media_file_url,
+            uploaded_by_id=current_user.id
+        )
+
+    return db_issue

@@ -2,10 +2,12 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Form, status, De
 from datetime import datetime
 import random
 from typing import List, Optional
-import os # Import os for file size check
+import os
+from sqlalchemy.orm import Session, joinedload # Import joinedload
 
-from ..schemas import CitizenReport, CitizenReportResponse, IssueStatusEnum # Import IssueStatusEnum
-from .. import database, schemas # Re-import schemas to ensure it's up-to-date
+from ..schemas import CitizenReport, CitizenReportResponse, IssueStatusEnum, InfrastructureIssueAdmin # Import InfrastructureIssueAdmin
+from .. import database, schemas, models # Import models
+from .. import security # Import the security module
 
 router = APIRouter(prefix="/api/v1/reports", tags=["reports"])
 
@@ -31,8 +33,7 @@ async def submit_citizen_report(
             full_name=full_name,
             contact_number=contact_number,
             locality=locality,
-            issue_category=issue_category,
-            description=description
+            issue_category=issue_category
         )
         # Validate image file if provided
         if image:
@@ -94,116 +95,34 @@ async def get_my_reports(
     """
     Get reports submitted by a citizen (filtered by contact number).
     """
-    # In real implementation, this would query the database
-    # For now, return mock data
-
-    mock_reports = [
-        {
-            "id": "CHEN-9821",
-            "title": "Sewage Overflow near Kapaleeshwarar Temple",
-            "category": "Open Drains / Sewage Issues",
-            "location": "Mylapore",
-            "status": "Resolved",
-            "submitted_date": "2024-01-15T10:30:00Z",
-            "resolved_date": "2024-01-17T14:20:00Z",
-            "description": "Severe sewage overflow causing health hazards near the temple area",
-            "priority": "High",
-            "assigned_to": "GCC Sanitation Department",
-            "reporter_name": "Rajesh Kumar",
-            "contact_number": "+91-98765-43210",
-            "updates": [
-                {
-                    "date": "2024-01-15T11:00:00Z",
-                    "message": "Report received and assigned to sanitation team"
-                },
-                {
-                    "date": "2024-01-16T09:30:00Z",
-                    "message": "Team dispatched to location for assessment"
-                },
-                {
-                    "date": "2024-01-17T14:20:00Z",
-                    "message": "Issue resolved. Sewage line repaired and area cleaned"
-                }
-            ]
-        },
-        {
-            "id": "CHEN-9822",
-            "title": "Large Pothole on Anna Salai",
-            "category": "Potholes / Bad Roads",
-            "location": "Anna Salai",
-            "status": "In Progress",
-            "submitted_date": "2024-01-18T08:15:00Z",
-            "description": "Large pothole causing traffic disruption and vehicle damage",
-            "priority": "Medium",
-            "assigned_to": "GCC Roads Department",
-            "reporter_name": "Priya Sharma",
-            "contact_number": "+91-98765-43211",
-            "updates": [
-                {
-                    "date": "2024-01-18T09:00:00Z",
-                    "message": "Report received and assigned to roads department"
-                },
-                {
-                    "date": "2024-01-19T10:30:00Z",
-                    "message": "Site inspection completed. Repair work scheduled"
-                }
-            ]
-        }
-    ]
+    issues = db.query(models.InfrastructureIssue).filter(
+        models.InfrastructureIssue.reported_by_id == current_user.id
+    ).order_by(
+        models.InfrastructureIssue.detected_at.desc()
+    ).all()
 
     # Apply filters if provided
     if contact_number:
-        mock_reports = [r for r in mock_reports if r["contact_number"] == contact_number]
+        issues = [issue for issue in issues if issue.reporter.contact_number == contact_number]
 
     if status:
-        mock_reports = [r for r in mock_reports if r["status"] == status.value] # Compare with .value
+        issues = [issue for issue in issues if issue.status == status]
 
-    return mock_reports
+    return issues
 
 @router.get("/{report_id}", response_model=CitizenReportResponse)
 async def get_citizen_report(report_id: str):
     """
     Get a specific citizen report by ID.
     """
-    # In real implementation, query database by report_id
-    # For now, return mock data
+    issue = db.query(models.InfrastructureIssue).filter(
+        models.InfrastructureIssue.id == report_id
+    ).first()
 
-    mock_reports = [
-        {
-            "id": "CHEN-9821",
-            "title": "Sewage Overflow near Kapaleeshwarar Temple",
-            "category": "Open Drains / Sewage Issues",
-            "location": "Mylapore",
-            "status": "Resolved",
-            "submitted_date": "2024-01-15T10:30:00Z",
-            "resolved_date": "2024-01-17T14:20:00Z",
-            "description": "Severe sewage overflow causing health hazards near the temple area",
-            "priority": "High",
-            "assigned_to": "GCC Sanitation Department",
-            "reporter_name": "Rajesh Kumar",
-            "contact_number": "+91-98765-43210",
-            "updates": [
-                {
-                    "date": "2024-01-15T11:00:00Z",
-                    "message": "Report received and assigned to sanitation team"
-                },
-                {
-                    "date": "2024-01-16T09:30:00Z",
-                    "message": "Team dispatched to location for assessment"
-                },
-                {
-                    "date": "2024-01-17T14:20:00Z",
-                    "message": "Issue resolved. Sewage line repaired and area cleaned"
-                }
-            ]
-        }
-    ]
+    if not issue:
+        raise HTTPException(status_code=404, detail="Report not found")
 
-    for report in mock_reports:
-        if report["id"] == report_id:
-            return report
-
-    raise HTTPException(status_code=404, detail="Report not found")
+    return issue
 
 @router.get("/stats/summary")
 async def get_reports_summary():
@@ -220,3 +139,25 @@ async def get_reports_summary():
         "reports_this_week": 156,
         "reports_this_month": 642
     }
+
+# New endpoint for admin to get all infrastructure issues
+@router.get("/admin/all", response_model=List[InfrastructureIssueAdmin])
+async def get_all_infrastructure_issues(
+    db: Session = Depends(database.get_db),
+    current_user: models.UserProfile = Depends(security.get_current_admin_user) # Ensures only admins can access
+):
+    """
+    Retrieves all infrastructure issues with reporter and media details.
+    Accessible only by admin users.
+    """
+    try:
+        issues = db.query(models.InfrastructureIssue).options(
+            joinedload(models.InfrastructureIssue.reporter),
+            joinedload(models.InfrastructureIssue.media)
+        ).order_by(
+            models.InfrastructureIssue.detected_at.desc()
+        ).all()
+        return issues
+    except Exception as e:
+        print(f"Error fetching admin reports: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch reports.")

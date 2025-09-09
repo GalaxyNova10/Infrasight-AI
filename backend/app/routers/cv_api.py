@@ -91,7 +91,7 @@ class VideoProcessor:
 
                             detection_data = {
                                 "title": f"{class_name} Detected",
-                                "description": f"AI camera detected a {class_name} with confidence {confidence:.2f}.",
+                                "description": f"{class_name} detected with confidence {confidence:.2f}.",
                                 "issue_type": issue_type,
                                 "latitude": self.FIXED_LOCATION["lat"],
                                 "longitude": self.FIXED_LOCATION["lon"],
@@ -147,8 +147,10 @@ async def _process_image_in_background(job_id: str, image_bytes: bytes):
 async def predict_image_endpoint(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File provided is not an image.")
+    
+    image_bytes = await file.read()
+    
     try:
-        image_bytes = await file.read()
         detections, annotated_image_bytes = cv_model.predict_image(image_bytes)
         summary = cv_model.get_ai_summary(detections)
         
@@ -165,8 +167,11 @@ async def predict_image_endpoint(file: UploadFile = File(...)):
             "detections": detections,
             "percentage": percentage,
             "summary": summary,
-            "annotated_image": data_url # Changed to data URL
+            "annotated_image": data_url
         }
+    except HTTPException as e: # Catch HTTPException specifically
+        print(f"HTTPException in predict_image_endpoint: {e.detail}")
+        raise e # Re-raise the exception
     except Exception as e:
         print(f"Error processing image: {e}")
         raise HTTPException(status_code=500, detail=f"Error processing image: {e}")

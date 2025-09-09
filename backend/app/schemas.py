@@ -21,8 +21,8 @@ class InfrastructureIssueBase(BaseModel):
     title: str = Field(min_length=5, max_length=150)
     description: Optional[str] = Field(None, max_length=1000)
     issue_type: IssueTypeEnum
-    latitude: float = Field(..., ge=-90, le=90)
-    longitude: float = Field(..., ge=-180, le=180)
+    latitude: Optional[float] = Field(None, ge=-90, le=90)
+    longitude: Optional[float] = Field(None, ge=-180, le=180)
     address: Optional[str] = Field(None, max_length=255)
     priority: IssuePriorityEnum = IssuePriorityEnum.medium
 
@@ -64,6 +64,10 @@ class WorkOrderCreate(WorkOrderBase):
     issue_id: uuid.UUID
     assigned_to_id: Optional[uuid.UUID] = None
 
+class WorkOrderCreateRequest(BaseModel):
+    department: DepartmentTypeEnum
+    notes: Optional[str] = Field(None, max_length=1000)
+
 class CitizenReport(BaseModel):
     full_name: str = Field(min_length=2, max_length=100)
     contact_number: str = Field(min_length=5, max_length=20) # Consider regex for phone number format validation
@@ -71,6 +75,17 @@ class CitizenReport(BaseModel):
     issue_category: str = Field(min_length=2, max_length=100) # Consider making this an Enum or validating against a predefined list
     description: str = Field(min_length=10, max_length=1000)
     image_url: Optional[str] = Field(None, max_length=255) # Consider URL validation
+
+class CitizenReportCreateForm(BaseModel):
+    title: str = Field(min_length=5, max_length=150)
+    description: Optional[str] = Field(None, max_length=1000)
+    issue_type: IssueTypeEnum
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    address: Optional[str] = Field(None, max_length=255)
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 # ==============================================================================
 # Read Schemas (for GET requests - data going OUT)
@@ -252,3 +267,20 @@ class GeoJSONFeature(BaseModel):
 class GeoJSONFeatureCollection(BaseModel):
     type: str
     features: List[GeoJSONFeature]
+
+class InfrastructureIssueAdmin(InfrastructureIssue):
+    reporter: Optional[UserProfile] = None
+    media: List["IssueMediaSchema"] = []
+    assigned_to: Optional[UserProfile] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+class IssueMediaSchema(BaseModel):
+    id: uuid.UUID
+    issue_id: uuid.UUID
+    file_url: str
+    file_type: str
+    uploaded_by_id: uuid.UUID
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

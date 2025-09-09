@@ -32,13 +32,10 @@ class IssuePriorityEnum(str, enum.Enum):
 
 class IssueTypeEnum(str, enum.Enum):
     pothole = 'pothole'
-    water_leak = 'water_leak'
-    garbage_overflow = 'garbage_overflow'
-    streetlight_fault = 'streetlight_fault'
-    traffic_signal = 'traffic_signal'
-    road_damage = 'road_damage'
-    sidewalk_issue = 'sidewalk_issue'
-    other = 'other'
+    garbage_piles = 'garbage_piles'
+    street_flooding = 'street_flooding'
+    illegal_parking = 'illegal_parking'
+    debris = 'debris'
 
 class DepartmentTypeEnum(str, enum.Enum):
     public_works = 'public_works'
@@ -109,8 +106,8 @@ class InfrastructureIssue(Base):
     issue_type = Column(Enum(IssueTypeEnum), nullable=False, index=True)  # <-- CHANGED
     status = Column(Enum(IssueStatusEnum), default=IssueStatusEnum.detected, index=True)  # <-- CHANGED
     priority = Column(Enum(IssuePriorityEnum), default=IssuePriorityEnum.medium)
-    latitude = Column(Numeric(10, 8), nullable=False)
-    longitude = Column(Numeric(11, 8), nullable=False)
+    latitude = Column(Numeric(10, 8), nullable=True)
+    longitude = Column(Numeric(11, 8), nullable=True)
     location = Column(Geometry(geometry_type='POINT', srid=4326), index=True)  # <-- ADDED
     address = Column(String)
     detection_source = Column(Enum(DetectionSourceEnum), nullable=False)

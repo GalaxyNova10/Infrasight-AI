@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // The Vite proxy will handle rewriting /api/v1 to the backend URL in development.
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1', // CORRECTED: This now matches the backend prefix.
+  baseURL: '/api', // Changed to /api to use the Vite proxy
 });
 
 // Interceptor to add the JWT token to every outgoing request
@@ -40,34 +40,38 @@ export const register = async (userData) => {
   return response.data;
 };
 
-export const loginWithGoogle = async (token) => {
-  const response = await api.post(`/auth/google`, { token });
-  return response.data;
-};
-
 // --- USER ---
 export const getProfile = () => api.get('/users/me');
 export const getUsers = () => api.get('/users/');
 
 
 // --- ISSUES & REPORTS ---
-export const getIssues = () => api.get(`/issues`);
-export const getIssuesSummary = () => api.get('/issues/summary');
+export const getIssues = (status) => {
+  const params = status ? { status } : {};
+  return api.get(`/issues/`, { params });
+};
 export const createWorkOrder = (workOrderData) => api.post('/issues/work-orders', workOrderData);
 export const resolveIssue = (issueId) => api.patch(`/issues/${issueId}/resolve`);
 
 export const submitReport = async (reportData, imageFile) => {
-  const formData = new FormData();
-  for (const key in reportData) {
-    formData.append(key, reportData[key]);
-  }
+  const data = { ...reportData }; // Start with report data
   if (imageFile) {
-    formData.append("image", imageFile);
+    // Convert image to base64
+    const reader = new FileReader();
+    const base64Image = await new Promise((resolve) => {
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(imageFile);
+    });
+    data.image_base64 = base64Image;
+    data.filename = imageFile.name;
   }
-  const response = await api.post(`/citizen-reports/`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const response = await api.post(`/citizen-reports/`, data); // Send as JSON
   return response.data;
+};
+
+// NEW: Function to get all reports for the admin dashboard
+export const getAdminReports = () => {
+  return api.get(`/reports/admin/reports`); // Calls the new backend endpoint
 };
 
 // --- COMMUNITY HUB ---
@@ -77,21 +81,25 @@ export const getCommunityData = () => api.get('/community/');
 // --- COMPUTER VISION ---
 // Function to send an image for AI prediction (old synchronous endpoint)
 export const predictImage = async (imageFile) => {
-    const formData = new FormData();
-    formData.append("file", imageFile);
-    
-    const response = await api.post('/cv-api/predict/image', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
+    const reader = new FileReader();
+    const base64Image = await new Promise((resolve) => {
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(imageFile);
     });
+    
+    const data = {
+        image_base64: base64Image,
+        filename: imageFile.name,
+    };
+    
+    const response = await api.post('/cv-api/predict/image', data); // Send as JSON
     return response.data;
 };
 
 // New: Function to submit an image for asynchronous processing
 export const submitImageForProcessing = async (imageFile) => {
   const formData = new FormData();
-  formData.append("file", imageFile);
+  formData.append('file', imageFile);
 
   const response = await api.post('/cv-api/predict-async', formData, {
     headers: {

@@ -67,6 +67,10 @@ const Select = React.forwardRef(({
     };
 
     const handleOptionSelect = (option) => {
+        if (!option || option.value === undefined) {
+            // console.error("Invalid option selected:", option); // For debugging, if I could
+            return;
+        }
         if (multiple) {
             const newValue = value || [];
             const updatedValue = newValue.includes(option.value)

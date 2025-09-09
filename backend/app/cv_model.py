@@ -14,12 +14,15 @@ def load_models():
     """
     try:
         model_path = "models/best.pt"
+        print(f"[INFO] Attempting to load YOLOv8 model from: {model_path}")
         if not os.path.exists(model_path):
+            print(f"[ERROR] Model file not found at {model_path}. Please ensure it exists.")
             raise FileNotFoundError(f"Model file not found at {model_path}")
+        
         model_cache['yolo'] = YOLO(model_path)
         print("[INFO] YOLOv8 model loaded successfully.")
     except Exception as e:
-        print(f"[ERROR] Failed to load YOLOv8 model: {e}")
+        print(f"[CRITICAL ERROR] Failed to load YOLOv8 model: {e}")
         # Re-raise the exception to prevent the application from starting in a broken state.
         raise RuntimeError(f"YOLOv8 model could not be loaded. Error: {e}")
 

@@ -6,13 +6,13 @@ import { Routes as RouterRoutes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 import MainLayout from "./components/MainLayout";
-import PublicLayout from "./components/PublicLayout"; // Import the new PublicLayout
+import PublicLayout from "./components/PublicLayout";
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 
 // --- Lazy-loaded Page Imports ---
 const HomePage = React.lazy(() => import("./pages/home"));
 const LoginPage = React.lazy(() => import("./pages/login-page"));
 const RegisterPage = React.lazy(() => import("./pages/register"));
-const ReportPage = React.lazy(() => import("./pages/report-page"));
 const MyReportsPage = React.lazy(() => import("./pages/my-reports"));
 const PublicDataPage = React.lazy(() => import("./pages/public-data"));
 const CommunityPage = React.lazy(() => import("./pages/community-hub"));
@@ -24,6 +24,7 @@ const ForgotPasswordPage = React.lazy(() => import("./pages/forgot-password"));
 const ResetPasswordPage = React.lazy(() => import("./pages/reset-password"));
 const TestingPage = React.lazy(() => import("./pages/testing"));
 const UsersPage = React.lazy(() => import("./pages/users"));
+const ReportPage = React.lazy(() => import("./pages/report"));
 const ReportsPage = React.lazy(() => import("./pages/reports"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 
@@ -42,9 +43,14 @@ const ProjectRoutes = () => {
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<HomePage />} />
             <Route path="public-data" element={<PublicDataPage />} />
-            <Route path="report" element={<ReportPage />} />
             <Route path="community" element={<CommunityPage />} />
             <Route path="my-reports" element={<MyReportsPage />} />
+            <Route path="report" element={<ReportPage />} />
+          </Route>
+
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            {/* Add protected routes here if needed */}
           </Route>
 
           {/* Routes with MainLayout (Dashboard) */}
